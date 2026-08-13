@@ -61,6 +61,13 @@ SUPPORTED_MODELS: list[ModelOption] = [
         "supports_images": True,
     },
     {
+        "id": "openai:deepseek-v4-flash",
+        "label": "DeepSeek V4 Flash",
+        "efforts": ["high", "max"],
+        "default_effort": "high",
+        "supports_images": False,
+    },
+    {
         "id": "google_genai:gemini-3.6-flash",
         "label": "Gemini 3.6 Flash",
         "efforts": ["minimal", "low", "medium", "high"],

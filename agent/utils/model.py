@@ -133,14 +133,25 @@ def make_model(model_id: str, *, use_gateway: bool | None = None, **kwargs: Unpa
     if model_id.startswith(_TIMEOUT_PROVIDER_PREFIXES):
         model_kwargs.setdefault("timeout", DEFAULT_REQUEST_TIMEOUT_SECONDS)
 
+    custom_openai_base_url = None
     if model_id.startswith("openai:"):
-        # Direct-provider default: Responses API over the OpenAI websocket base.
-        # Gateway routing overrides this below (an HTTP(S) proxy can't carry wss).
-        model_kwargs["base_url"] = OPENAI_RESPONSES_WS_BASE_URL
-        model_kwargs["use_responses_api"] = True
+        # Custom OpenAI-compatible endpoints generally expose Chat Completions,
+        # while the official endpoint uses Responses over the websocket base.
+        if model_id.startswith("openai:deepseek-"):
+            custom_openai_base_url = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+        else:
+            custom_openai_base_url = os.environ.get("OPENAI_BASE_URL")
+        if custom_openai_base_url:
+            model_kwargs["base_url"] = custom_openai_base_url.rstrip("/")
+            model_kwargs["use_responses_api"] = False
+            if model_id.startswith("openai:deepseek-"):
+                model_kwargs["api_key"] = os.environ.get("DEEPSEEK_API_KEY")
+        else:
+            model_kwargs["base_url"] = OPENAI_RESPONSES_WS_BASE_URL
+            model_kwargs["use_responses_api"] = True
 
     enabled = gateway_env_default() if use_gateway is None else use_gateway
-    if enabled:
+    if enabled and not custom_openai_base_url:
         overrides = gateway_overrides(model_id)
         if overrides is not None:
             model_kwargs.update(overrides)
@@ -311,7 +322,10 @@ def validate_local_dev_llm_config() -> None:
 
     model_id = os.environ.get("LLM_MODEL_ID", DEFAULT_MODEL_ID)
 
-    if model_id.startswith("openai:") and not os.environ.get("OPENAI_API_KEY"):
+    if model_id.startswith("openai:deepseek-"):
+        if not os.environ.get("DEEPSEEK_API_KEY"):
+            raise ValueError(f"DEEPSEEK_API_KEY is required for configured model {model_id}")
+    elif model_id.startswith("openai:") and not os.environ.get("OPENAI_API_KEY"):
         raise ValueError(f"OPENAI_API_KEY is required for configured model {model_id}")
     elif model_id.startswith("anthropic:") and not os.environ.get("ANTHROPIC_API_KEY"):
         raise ValueError(f"ANTHROPIC_API_KEY is required for configured model {model_id}")
