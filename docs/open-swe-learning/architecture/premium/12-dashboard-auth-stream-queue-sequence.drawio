@@ -1,0 +1,161 @@
+<mxfile>
+  <diagram id="seqlayout" name="Dashboard OAuth、SSE 与忙碌线程队列">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" background="#F7F9FC">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="browser" value="Browser / Agents UI" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="routes" value="FastAPI dashboard routes" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="320" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="github" value="GitHub OAuth" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="600" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="session" value="Session cookie / OAuth store" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="880" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="thread_api.py" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="lg" value="LangGraph SDK / Runtime" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="store" value="LangGraph Store" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="1720" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="agent" value="Agent middleware" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;" vertex="1" parent="1">
+          <mxGeometry x="2000" y="40" width="100" height="1620" as="geometry" />
+        </mxCell>
+        <mxCell id="act0" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="github">
+          <mxGeometry x="45" y="190" width="10" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="routes">
+          <mxGeometry x="45" y="90" width="10" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="lg">
+          <mxGeometry x="45" y="490" width="10" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="api">
+          <mxGeometry x="45" y="440" width="10" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="act4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="lg">
+          <mxGeometry x="45" y="740" width="10" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act5" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="lg">
+          <mxGeometry x="45" y="840" width="10" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="act6" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="api">
+          <mxGeometry x="45" y="690" width="10" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="act7" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="store">
+          <mxGeometry x="45" y="1310" width="10" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act8" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="store">
+          <mxGeometry x="45" y="1410" width="10" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act9" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="session">
+          <mxGeometry x="45" y="140" width="10" height="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="act10" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="routes">
+          <mxGeometry x="45" y="390" width="10" height="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="act11" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fillColor=#eceff1;strokeColor=#455a64;" vertex="1" parent="api">
+          <mxGeometry x="45" y="1260" width="10" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="m0" value="GET /auth/login?redirect_to=/agents" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.0556;entryX=0;entryY=0.0;" edge="1" parent="1" source="browser" target="act1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" value="issue state + nonce cookie" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.2;entryX=0;entryY=0.0;" edge="1" parent="1" source="act1" target="act9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" value="302 authorize(client_id, redirect_uri, state)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.4;entryX=0;entryY=0.0;" edge="1" parent="1" source="act1" target="act0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m3" value="GET /auth/callback?code&amp;state" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=1;entryY=0.6;" edge="1" parent="1" source="act0" target="act1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m4" value="verify nonce; exchange code; store token" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.8;entryX=0;entryY=0.1042;" edge="1" parent="1" source="act1" target="act9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5" value="session JWT cookie + redirect /agents" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=0.5;entryY=0.2099;" edge="1" parent="1" source="act1" target="browser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m6" value="GET /threads/sidebar (cookie)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.2407;entryX=0;entryY=0.0;" edge="1" parent="1" source="browser" target="act10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m7" value="list_dashboard_threads_sidebar()" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.042;entryX=0;entryY=0.0;" edge="1" parent="1" source="act10" target="act3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m8" value="threads.search + latest run status" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.3333;entryX=0;entryY=0.0;" edge="1" parent="1" source="act3" target="act2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m9" value="thread summaries / metadata" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=1;entryY=0.6667;" edge="1" parent="1" source="act2" target="act3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m10" value="active + resolved sidebar items" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=0.5;entryY=0.3642;" edge="1" parent="1" source="act3" target="browser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m11" value="POST /threads/:id/commands run.start" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.3951;entryX=0;entryY=0.2101;" edge="1" parent="1" source="browser" target="act10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m12" value="auth + JSON validation + ownership" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.2521;entryX=0;entryY=0.0;" edge="1" parent="1" source="act10" target="act6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m13" value="enrich configurable; forward command" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.125;entryX=0;entryY=0.0;" edge="1" parent="1" source="act6" target="act4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m14" value="accepted + run_id" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=1;entryY=0.25;" edge="1" parent="1" source="act4" target="act6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m15" value="persist latest_run_id/status" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=1;exitY=0.375;entryX=0;entryY=0.0;" edge="1" parent="1" source="act6" target="act5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m16" value="POST /threads/:id/stream/events" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.5494;entryX=0;entryY=0.4202;" edge="1" parent="1" source="browser" target="act10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m17" value="readable preflight" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.4622;entryX=0;entryY=0.625;" edge="1" parent="1" source="act10" target="act6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m18" value="POST stream/events; Accept: text/event-stream" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.75;entryX=0;entryY=0.75;" edge="1" parent="1" source="act6" target="act5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m19" value="messages/tools/lifecycle SSE bytes" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=1;entryY=0.875;" edge="1" parent="1" source="act5" target="act6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m20" value="transparent SSE forwarding" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=0.5;entryY=0.6728;" edge="1" parent="1" source="act6" target="browser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m21" value="StreamProvider hydrates state + updates UI" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.7037;entryX=0.5;entryY=0.7222;" edge="1" parent="1" source="browser" target="browser">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="150" y="1180" /><mxPoint x="150" y="1210" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m22" value="POST /threads/:id/messages while busy" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.7469;entryX=0;entryY=0.6891;" edge="1" parent="1" source="browser" target="act10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m23" value="owner/readability + image limits" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.7311;entryX=0;entryY=0.0;" edge="1" parent="1" source="act10" target="act11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m24" value="queue_message_for_thread(FIFO)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1562;entryX=0;entryY=0.0;" edge="1" parent="1" source="act11" target="act7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m25" value="queued" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=1;entryY=0.3125;" edge="1" parent="1" source="act7" target="act11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m26" value="before each model call: read + delete queue" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.8704;entryX=1;entryY=0.0;" edge="1" parent="1" source="agent" target="act8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m27" value="pending messages" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=1;exitY=1.0;entryX=0.5;entryY=0.9012;" edge="1" parent="1" source="act8" target="agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m28" value="inject human messages before next model call" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.9321;entryX=0.5;entryY=0.9506;" edge="1" parent="1" source="agent" target="agent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="2110" y="1550" /><mxPoint x="2110" y="1580" /></Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

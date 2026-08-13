@@ -1,0 +1,34 @@
+{
+  "title": "模型配置与 WawAPI 请求链路",
+  "participants": [
+    {"id": "ui", "label": "Dashboard UI"},
+    {"id": "proxy", "label": "thread_api.py"},
+    {"id": "factory", "label": "server.py get_agent"},
+    {"id": "settings", "label": "team/profile/thread"},
+    {"id": "model", "label": "utils/model.py"},
+    {"id": "langchain", "label": "init_chat_model"},
+    {"id": "wawapi", "label": "WawAPI HTTPS Chat"},
+    {"id": "fallback", "label": "ModelFallbackMiddleware"}
+  ],
+  "messages": [
+    {"from": "ui", "to": "proxy", "label": "run.start: model_id + effort"},
+    {"from": "proxy", "to": "settings", "label": "resolve profile/team + validate choice"},
+    {"from": "settings", "to": "proxy", "label": "trusted configurable" , "return": true},
+    {"from": "proxy", "to": "factory", "label": "LangGraph run: thread config"},
+    {"from": "factory", "to": "settings", "label": "team defaults / profile override"},
+    {"from": "settings", "to": "factory", "label": "primary + subagent pair", "return": true},
+    {"from": "factory", "to": "model", "label": "provider_model_kwargs(effort)"},
+    {"from": "model", "to": "model", "label": "set timeout + retries", "activate": false},
+    {"from": "model", "to": "model", "label": "OPENAI_BASE_URL => Chat Completions", "activate": false},
+    {"from": "model", "to": "langchain", "label": "init_chat_model(model_id, **kwargs)"},
+    {"from": "langchain", "to": "model", "label": "cached BaseChatModel", "return": true},
+    {"from": "model", "to": "factory", "label": "primary model + fallback spec", "return": true},
+    {"from": "factory", "to": "wawapi", "label": "HTTPS /v1/chat/completions"},
+    {"from": "wawapi", "to": "factory", "label": "AI message / tool decision", "return": true},
+    {"from": "factory", "to": "fallback", "label": "provider error", "async": true},
+    {"from": "fallback", "to": "model", "label": "construct fallback model"},
+    {"from": "model", "to": "fallback", "label": "fallback BaseChatModel", "return": true},
+    {"from": "fallback", "to": "factory", "label": "retry with alternate provider", "return": true},
+    {"from": "factory", "to": "ui", "label": "SSE messages / tools / lifecycle", "return": true}
+  ]
+}

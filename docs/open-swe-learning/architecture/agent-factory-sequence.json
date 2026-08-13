@@ -1,0 +1,32 @@
+{
+  "title": "get_agent(config) 主 Agent 工厂",
+  "participants": [
+    {"id": "runtime", "label": "LangGraph\nRuntime", "actor": true},
+    {"id": "factory", "label": "agent.server\nget_agent(config)"},
+    {"id": "auth", "label": "resolve_github_token\nGitHub App fallback"},
+    {"id": "profile", "label": "team/profile\nmodel + effort"},
+    {"id": "sandbox", "label": "ensure_sandbox_for_thread\nSANDBOX_BACKENDS"},
+    {"id": "model", "label": "make_model\nprovider kwargs"},
+    {"id": "deep", "label": "create_deep_agent\ncompiled graph"},
+    {"id": "tools", "label": "curated tools\n+ built-ins"},
+    {"id": "middleware", "label": "middleware stack"}
+  ],
+  "messages": [
+    {"from": "runtime", "to": "factory", "label": "调用 get_agent(config)"},
+    {"from": "factory", "to": "auth", "label": "resolve_github_token(config)"},
+    {"from": "auth", "to": "factory", "label": "OAuth token 或 App installation token", "return": true},
+    {"from": "factory", "to": "profile", "label": "解析 team / user profile / thread override"},
+    {"from": "profile", "to": "factory", "label": "agent_model_id + agent_effort", "return": true},
+    {"from": "factory", "to": "sandbox", "label": "ensure_sandbox_for_thread()"},
+    {"from": "sandbox", "to": "factory", "label": "复用 / 重连 / 新建 sandbox proxy", "return": true},
+    {"from": "factory", "to": "model", "label": "make_model(model_id, effort)"},
+    {"from": "model", "to": "factory", "label": "ChatModel + timeout + fallback", "return": true},
+    {"from": "factory", "to": "tools", "label": "声明 Slack/Linear/GitHub/HTTP 工具"},
+    {"from": "tools", "to": "factory", "label": "工具列表 + deepagents 内置工具", "return": true},
+    {"from": "factory", "to": "middleware", "label": "按顺序装配 middleware"},
+    {"from": "middleware", "to": "factory", "label": "Sanitize → Limit → Error → Queue → Timeout", "return": true},
+    {"from": "factory", "to": "deep", "label": "create_deep_agent(model, tools, middleware, prompt)"},
+    {"from": "deep", "to": "factory", "label": "Pregel compiled graph", "return": true},
+    {"from": "factory", "to": "runtime", "label": "返回本次 run 使用的图", "return": true}
+  ]
+}

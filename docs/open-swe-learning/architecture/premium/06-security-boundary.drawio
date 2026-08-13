@@ -1,0 +1,67 @@
+<mxfile>
+  <diagram id="page" name="安全边界">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" background="#F7F9FC">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sec-user" value="开发者&#10;[Person: Browser / Desktop]&#10;通过 OAuth 登录 Dashboard 并发起 Agent run" style="shape=mxgraph.c4.person2;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#E7F2FF;strokeColor=#75B4EE;" vertex="1" parent="1">
+          <mxGeometry x="0" y="180" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-ui" value="UI / Desktop&#10;[Container: React / Electron]&#10;只持有 session cookie 或短期应用状态，不接触 sandbox 内的真实 token" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#E7F2FF;strokeColor=#75B4EE;" vertex="1" parent="1">
+          <mxGeometry x="260" y="210" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-api" value="FastAPI Dashboard&#10;[Container: agent.webapp:app]&#10;执行登录、权限、webhook 签名校验和命令代理" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#E7F2FF;strokeColor=#75B4EE;" vertex="1" parent="1">
+          <mxGeometry x="570" y="210" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-oauth" value="OAuth Store&#10;[Container: Encrypted at rest]&#10;保存用户 GitHub OAuth token；运行时才解密到进程内存" style="shape=cylinder3;size=15;boundedLbl=1;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#E7F2FF;strokeColor=#75B4EE;" vertex="1" parent="1">
+          <mxGeometry x="870" y="0" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-app" value="GitHub App&#10;[Software System: App ID + Private Key]&#10;无用户 token 时签发 installation token；权限受安装仓库范围限制" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="1">
+          <mxGeometry x="870" y="160" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-github" value="GitHub API / Git&#10;[Software System: api.github.com + github.com]&#10;仓库、PR、评论和 Git 传输目标" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="1">
+          <mxGeometry x="1790" y="340" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-agent" value="Agent Graph&#10;[Container: get_agent + tools]&#10;在受控 middleware 和工具白名单下使用解析出的 token" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#E7F2FF;strokeColor=#75B4EE;" vertex="1" parent="1">
+          <mxGeometry x="870" y="390" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-proxy" value="Sandbox GitHub Proxy&#10;[Container: LangSmith proxy rules]&#10;将 git Basic auth 与 API Bearer auth 注入到 sandbox 出站请求" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#E7F2FF;strokeColor=#75B4EE;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="460" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-sandbox" value="Isolated Sandbox&#10;[Software System: SANDBOX_TYPE]&#10;执行代码和 Git 命令；不应把真实 token 写入文件系统" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="1">
+          <mxGeometry x="1490" y="460" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" value="OAuth 登录 / 使用 UI" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="sec-user" target="sec-ui">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="200" y="270" /><mxPoint x="250" y="270" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="session cookie + HTTPS" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="sec-ui" target="sec-api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="510" y="270" /><mxPoint x="560" y="270" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="读取/写入加密 OAuth" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="sec-api" target="sec-oauth">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="690" y="150" /><mxPoint x="690" y="60" /><mxPoint x="690" y="60" /><mxPoint x="690" y="60" /><mxPoint x="860" y="60" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="installation token fallback" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="sec-api" target="sec-app">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="810" y="250" /><mxPoint x="860" y="250" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="OAuth API / webhook" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;exitX=0.5;exitY=1;entryX=0;entryY=1;" edge="1" parent="1" source="sec-api" target="sec-github">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="690" y="350" /><mxPoint x="690" y="650" /><mxPoint x="1750" y="650" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="带 user context 的 run config" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;exitX=1;exitY=0.5;entryX=0.25;entryY=0;" edge="1" parent="1" source="sec-api" target="sec-agent">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="840" y="270" /><mxPoint x="840" y="370" /><mxPoint x="930" y="370" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="配置 fresh proxy token" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="sec-agent" target="sec-proxy">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1120" y="480" /><mxPoint x="1170" y="480" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="注入出站认证规则" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="sec-proxy" target="sec-sandbox">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1420" y="520" /><mxPoint x="1470" y="520" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="GH_TOKEN=dummy gh ..." style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="sec-sandbox" target="sec-github">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1600" y="450" /><mxPoint x="1600" y="440" /><mxPoint x="1600" y="440" /><mxPoint x="1600" y="440" /><mxPoint x="1780" y="440" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e9" value="工具 API 请求" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;exitX=0.75;exitY=1;entryX=0;entryY=1;" edge="1" parent="1" source="sec-agent" target="sec-github">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1050" y="600" /><mxPoint x="1750" y="600" /></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

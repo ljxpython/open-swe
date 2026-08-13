@@ -1,0 +1,88 @@
+<mxfile>
+  <diagram id="seqlayout" name="GitHub / Slack / Linear Webhook 到 Agent">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" background="#F7F9FC">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="source" value="GitHub / Slack / Linear" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;participant=umlActor;verticalAlign=bottom;spacingBottom=-14;labelBackgroundColor=#ffffff;fontFamily=Arial;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="100" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="webapp" value="agent.webapp&#10;FastAPI" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="360" y="40" width="100" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="verify" value="签名验证 +&#10;thread_id 推导" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="100" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="proxy" value="Dashboard / dispatch&#10;command path" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="40" width="100" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="runtime" value="LangGraph&#10;Runtime" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="40" width="100" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="agent" value="Main / Reviewer&#10;Graph" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="40" width="100" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="channel" value="源渠道回复&#10;Slack/Linear/GitHub" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fontFamily=Arial;strokeWidth=1.2;" vertex="1" parent="1">
+          <mxGeometry x="1960" y="40" width="100" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="act0" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="webapp">
+          <mxGeometry x="45" y="90" width="10" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="verify">
+          <mxGeometry x="45" y="140" width="10" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="proxy">
+          <mxGeometry x="45" y="330" width="10" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="runtime">
+          <mxGeometry x="45" y="380" width="10" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="act4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="agent">
+          <mxGeometry x="45" y="430" width="10" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="act5" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fontFamily=Arial;fontColor=#172B4D;strokeWidth=1.2;fillColor=#F6F9FD;strokeColor=#D7E2F0;" vertex="1" parent="channel">
+          <mxGeometry x="45" y="550" width="10" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="m0" value="POST webhook&#10;事件 payload" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.1216;entryX=0;entryY=0.0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="source" target="act0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" value="读取 headers + body" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.0893;entryX=0;entryY=0.0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act0" target="act1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" value="verify_github_signature()&#10;或 Slack/Linear 校验" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.0893;entryX=1;entryY=0.1429;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act1" target="act1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="790" y="230" /><mxPoint x="790" y="260" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="get_thread_id_from_branch()&#10;或渠道等价函数" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.2143;entryX=1;entryY=0.2679;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act1" target="act1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="790" y="300" /><mxPoint x="790" y="330" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="确定性 thread_id + user context" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.3393;entryX=0;entryY=0.0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act1" target="act2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5" value="启动/追加 run&#10;同一 thread 复用" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1351;entryX=0;entryY=0.0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act2" target="act3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m6" value="加载 traced_agent 或 reviewer" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1562;entryX=0;entryY=0.0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act3" target="act4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m7" value="middleware + tools + model loop" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1852;entryX=1;entryY=0.2963;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act4" target="act4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1750" y="520" /><mxPoint x="1750" y="550" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="slack_thread_reply / linear_comment / GitHub comment" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=1;exitY=0.4444;entryX=0;entryY=0.0;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act4" target="act5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m9" value="run status / events" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=0;exitY=0.6875;entryX=1;entryY=0.9107;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act3" target="act0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m10" value="HTTP 2xx 快速确认" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=0;exitY=1.0;entryX=0.5;entryY=0.8784;strokeColor=#6B7C93;fontColor=#6B7C93;labelBackgroundColor=#F7F9FC;strokeWidth=1.2;" edge="1" parent="1" source="act0" target="source">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
