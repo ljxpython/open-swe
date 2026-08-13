@@ -49,12 +49,13 @@ def test_provider_fallback_resolves_openai_within_provider() -> None:
     assert effort == "low"
 
 
-def test_supported_openai_models_are_the_gpt_5_6_family() -> None:
+def test_supported_openai_models_include_deepseek() -> None:
     openai_options = [model for model in SUPPORTED_MODELS if model["id"].startswith("openai:")]
     assert [(model["id"], model["label"]) for model in openai_options] == [
         ("openai:gpt-5.6-sol", "GPT-5.6 Sol"),
         ("openai:gpt-5.6-terra", "GPT-5.6 Terra"),
         ("openai:gpt-5.6-luna", "GPT-5.6 Luna"),
+        ("openai:deepseek-v4-flash", "DeepSeek V4 Flash"),
     ]
 
 
@@ -110,9 +111,10 @@ def test_models_with_profile_context_windows_enriches_copies() -> None:
     enriched = models_with_profile_context_windows(models)
     assert all("context_window" not in model for model in models)
     assert {model["id"]: model.get("context_window") for model in enriched} == {
-        "openai:gpt-5.6-sol": 272_000,
-        "openai:gpt-5.6-terra": 272_000,
-        "openai:gpt-5.6-luna": 272_000,
+        "openai:gpt-5.6-sol": 1_050_000,
+        "openai:gpt-5.6-terra": 1_050_000,
+        "openai:gpt-5.6-luna": 1_050_000,
+        "openai:deepseek-v4-flash": None,
         SUPPORTED_KIMI: 1_048_576,
     }
 

@@ -319,7 +319,12 @@ export function AgentsSidebar({
       <div className="flex flex-col gap-0.5 px-2 pb-1">
         <Link
           to="/agents"
-          onClick={layout.closeOnMobile}
+          onClick={(event) => {
+            layout.closeOnMobile()
+            if (!activeThreadId) return
+            event.preventDefault()
+            window.location.assign("/agents")
+          }}
           className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:bg-sidebar-row-hover"
         >
           <PlusIcon className="size-4" />
