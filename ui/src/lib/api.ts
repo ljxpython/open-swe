@@ -6,16 +6,9 @@
  */
 
 import { dashboardApiBase } from "./api-base"
+import { dashboardApiUrl, dashboardForwardedHeaders } from "./dashboard-fetch"
 
 const API_BASE = dashboardApiBase()
-
-if (
-  !API_BASE &&
-  typeof window !== "undefined" &&
-  window.location.protocol !== "open-swe:"
-) {
-  console.warn("VITE_DASHBOARD_API_BASE_URL is not set")
-}
 
 const GITHUB_IMAGE_HOST_RE =
   /^(?:www\.)?github\.com$|\.githubusercontent\.com$/i
@@ -71,11 +64,12 @@ export function isGithubReauthError(error: unknown): boolean {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_BASE}/dashboard/api${path}`, {
+  const res = await fetch(dashboardApiUrl(path), {
     ...init,
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...dashboardForwardedHeaders(),
       ...(init.headers ?? {}),
     },
   })
@@ -147,6 +141,7 @@ export interface Profile {
   branch_prefix?: string | null
   auto_fix_ci?: boolean
   create_prs?: boolean
+  draft_prs?: boolean
   review_draft_prs?: boolean | null
   updated_at?: string
 }
@@ -161,6 +156,7 @@ export interface ProfileUpdate {
   branch_prefix?: string | null
   auto_fix_ci?: boolean
   create_prs?: boolean
+  draft_prs?: boolean
   review_draft_prs?: boolean | null
 }
 
@@ -213,11 +209,13 @@ export interface LangSmithConnectBody {
   endpoint?: string | null
 }
 
-export interface CurrentsCredentialStatus {
+export interface ApiKeyCredentialStatus {
   connected: boolean
   api_key_last4?: string
   updated_at?: string | null
 }
+
+export type CurrentsCredentialStatus = ApiKeyCredentialStatus
 
 export interface CurrentsConnectBody {
   api_key: string
@@ -365,6 +363,15 @@ export interface SkillInput {
 export interface SkillsPage {
   items: Array<Skill>
   next_offset: number | null
+}
+
+export interface SandboxSettings {
+  base_snapshot_id: string | null
+  env_base_snapshot_id: string | null
+  effective_base_snapshot_id: string | null
+  base_snapshot_source: "admin" | "env" | "unset"
+  updated_at: string | null
+  updated_by: string | null
 }
 
 export type RepoSnapshotStatus = "none" | "building" | "ready" | "failed"
@@ -720,6 +727,12 @@ export const api = {
     request<void>(`/agent-instructions/${encodeURIComponent(full_name)}`, {
       method: "DELETE",
     }),
+  getSandboxSettings: () => request<SandboxSettings>("/sandbox-settings"),
+  saveSandboxSettings: (base_snapshot_id: string | null) =>
+    request<SandboxSettings>("/sandbox-settings", {
+      method: "PUT",
+      body: JSON.stringify({ base_snapshot_id }),
+    }),
   listRepoSnapshots: () => request<Array<RepoSnapshot>>("/repo-snapshots"),
   createRepoSnapshot: (full_name: string) =>
     request<RepoSnapshot>("/repo-snapshots", {
@@ -780,6 +793,17 @@ export const api = {
     }),
   disconnectCurrents: () =>
     request<CurrentsCredentialStatus>("/my-credentials/currents", {
+      method: "DELETE",
+    }),
+  getMyLangSmithStatus: () =>
+    request<ApiKeyCredentialStatus>("/my-credentials/langsmith"),
+  connectMyLangSmith: (body: CurrentsConnectBody) =>
+    request<ApiKeyCredentialStatus>("/my-credentials/langsmith", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+  disconnectMyLangSmith: () =>
+    request<ApiKeyCredentialStatus>("/my-credentials/langsmith", {
       method: "DELETE",
     }),
   getMyNotionStatus: () =>

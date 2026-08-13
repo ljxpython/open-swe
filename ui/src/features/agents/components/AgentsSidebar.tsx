@@ -25,7 +25,7 @@ import {
 import { IoLogoGithub, IoLogoSlack } from "react-icons/io5"
 import { SiLinear } from "react-icons/si"
 import { useState } from "react"
-import type { ComponentType, SVGProps } from "react"
+import type { ComponentType, ReactNode, SVGProps } from "react"
 
 import type { SessionUser } from "@/lib/api"
 import type { DesktopAcpSessionSummary, DesktopProject } from "@/desktop"
@@ -118,8 +118,14 @@ export function AgentsSidebar({
   activeLocalSessionId,
   layout,
 }: AgentsSidebarProps) {
-  const { prefs, setGroup, setCompact, setFilters, resetFilters } =
-    useSidebarPrefs()
+  const {
+    prefs,
+    setGroup,
+    setCompact,
+    toggleSection,
+    setFilters,
+    resetFilters,
+  } = useSidebarPrefs()
   const sidebar = useSidebarThreads(RESOLVED_SIDEBAR_LIMIT, activeThreadId)
   const localSessions = useDesktopAcpSessions()
   const {
@@ -147,19 +153,26 @@ export function AgentsSidebar({
     sections.length === 0 &&
     (!showResolved || filteredResolved.length === 0) &&
     hasActiveFilters(prefs.filters)
+  const localSessionCount = localGroups.reduce(
+    (total, group) => total + group.sessions.length,
+    0
+  )
+  const cloudCollapsed = isDesktop && prefs.collapsed.cloud
 
   return (
-    <SidebarFrame
-      {...layout}
-      className="border-r border-border bg-sidebar"
-    >
-      <div className="flex items-center justify-between px-4 pt-5 pb-4">
+    <SidebarFrame {...layout} className="border-r border-border bg-sidebar">
+      <div
+        className={cn(
+          "flex items-center justify-between px-4 pb-4",
+          isDesktop ? "pt-13" : "pt-5"
+        )}
+      >
         <Link
           to="/my-settings"
           className="flex items-center gap-2 font-heading text-sm font-medium tracking-tight text-foreground"
         >
           <img src="/logo-mark.png" alt="" className="size-5" />
-          open-swe
+          Open SWE
         </Link>
         <SidebarCollapseButton onToggle={layout.toggle} />
       </div>
@@ -173,7 +186,7 @@ export function AgentsSidebar({
             event.preventDefault()
             window.location.assign("/agents")
           }}
-          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-sidebar-row-hover"
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:bg-sidebar-row-hover"
         >
           <PlusIcon className="size-4" />
           New Agent
@@ -188,10 +201,9 @@ export function AgentsSidebar({
               key={item.to}
               to={item.to}
               onClick={layout.closeOnMobile}
-              className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-foreground"
+              className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-foreground"
               activeProps={{
-                className:
-                  "bg-sidebar-row-hover !text-foreground font-medium",
+                className: "bg-sidebar-row-hover !text-foreground font-medium",
               }}
             >
               <Icon className="size-4" />
@@ -204,72 +216,93 @@ export function AgentsSidebar({
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
         {isDesktop && (
           <div className="mb-3">
-            <div className="mb-1 flex items-center justify-between px-2">
-              <span className="text-[10px] font-medium tracking-wide text-muted-foreground/70 uppercase">
-                Projects
-              </span>
+            <SectionHeader
+              label="Local"
+              count={localSessionCount}
+              collapsed={prefs.collapsed.local}
+              onToggle={() => toggleSection("local")}
+            >
               <button
                 aria-label="Add project"
-                className="flex size-6 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-sidebar-row-hover hover:text-foreground"
+                className="mr-1 flex size-5 items-center justify-center rounded text-muted-foreground/70 transition-colors hover:bg-sidebar-row-hover hover:text-foreground"
                 onClick={() => void addLocalProject()}
                 title="Add project"
                 type="button"
               >
                 <FolderPlusIcon className="size-3.5" />
               </button>
-            </div>
-            {localGroups.map((group) => (
-              <LocalThreadGroup
-                key={group.project.cwd}
-                project={group.project}
-                sessions={group.sessions}
-                activeSessionId={activeLocalSessionId}
-                onNavigate={layout.closeOnMobile}
-                onRemove={() => void removeLocalProject(group.project.cwd)}
-                compact={prefs.compact}
-              />
-            ))}
-            {localGroups.length === 0 && (
-              <p className="px-2.5 py-3 text-center text-xs text-muted-foreground/70">
-                No projects yet
-              </p>
+            </SectionHeader>
+            {!prefs.collapsed.local && (
+              <>
+                {localGroups.map((group) => (
+                  <LocalThreadGroup
+                    key={group.project.cwd}
+                    project={group.project}
+                    sessions={group.sessions}
+                    activeSessionId={activeLocalSessionId}
+                    onNavigate={layout.closeOnMobile}
+                    onRemove={() => void removeLocalProject(group.project.cwd)}
+                    compact={prefs.compact}
+                  />
+                ))}
+                {localGroups.length === 0 && (
+                  <p className="px-2.5 py-3 text-center text-xs text-muted-foreground/70">
+                    No projects yet
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}
-        {prefs.group === "none"
-          ? sections[0]?.threads.map((thread) => (
-              <ThreadRow
-                key={thread.id}
-                thread={thread}
-                isActive={thread.id === activeThreadId}
-                onNavigate={layout.closeOnMobile}
-                compact={prefs.compact}
-              />
-            ))
-          : sections.map((section) => (
-              <ThreadGroup
-                key={`${prefs.group}:${section.key}`}
-                label={section.label}
-                threads={section.threads}
-                activeThreadId={activeThreadId}
-                onNavigate={layout.closeOnMobile}
-                defaultCollapsed={section.defaultCollapsed}
-                compact={prefs.compact}
-              />
-            ))}
-        {showResolved && (
-          <ResolvedThreadGroup
-            threads={filteredResolved}
-            hasMore={resolvedHasMore}
-            activeThreadId={activeThreadId}
-            onNavigate={layout.closeOnMobile}
-            compact={prefs.compact}
+        {isDesktop && (
+          <SectionHeader
+            label="Cloud"
+            count={
+              filteredActive.length +
+              (showResolved ? filteredResolved.length : 0)
+            }
+            collapsed={prefs.collapsed.cloud}
+            onToggle={() => toggleSection("cloud")}
           />
         )}
-        {isEmpty && (
-          <p className="px-2.5 py-6 text-center text-xs text-muted-foreground/70">
-            No threads match these filters.
-          </p>
+        {!cloudCollapsed && (
+          <>
+            {prefs.group === "none"
+              ? sections[0]?.threads.map((thread) => (
+                  <ThreadRow
+                    key={thread.id}
+                    thread={thread}
+                    isActive={thread.id === activeThreadId}
+                    onNavigate={layout.closeOnMobile}
+                    compact={prefs.compact}
+                  />
+                ))
+              : sections.map((section) => (
+                  <ThreadGroup
+                    key={`${prefs.group}:${section.key}`}
+                    label={section.label}
+                    threads={section.threads}
+                    activeThreadId={activeThreadId}
+                    onNavigate={layout.closeOnMobile}
+                    defaultCollapsed={section.defaultCollapsed}
+                    compact={prefs.compact}
+                  />
+                ))}
+            {showResolved && (
+              <ResolvedThreadGroup
+                threads={filteredResolved}
+                hasMore={resolvedHasMore}
+                activeThreadId={activeThreadId}
+                onNavigate={layout.closeOnMobile}
+                compact={prefs.compact}
+              />
+            )}
+            {isEmpty && (
+              <p className="px-2.5 py-6 text-center text-xs text-muted-foreground/70">
+                No threads match these filters.
+              </p>
+            )}
+          </>
         )}
       </div>
 
@@ -287,6 +320,37 @@ export function AgentsSidebar({
         />
       </div>
     </SidebarFrame>
+  )
+}
+
+function SectionHeader({
+  label,
+  count,
+  collapsed,
+  onToggle,
+  children,
+}: {
+  label: string
+  count: number
+  collapsed: boolean
+  onToggle: () => void
+  children?: ReactNode
+}) {
+  return (
+    <div className="flex items-center">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex min-w-0 flex-1 items-center gap-1 px-2 py-1.5 text-left font-heading text-xs font-semibold tracking-wide text-foreground uppercase transition-colors hover:text-foreground/80"
+        aria-expanded={!collapsed}
+      >
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span className="text-[10px] font-medium text-muted-foreground/70">
+          {count}
+        </span>
+      </button>
+      {children}
+    </div>
   )
 }
 
@@ -351,7 +415,7 @@ function LocalThreadGroup({
         </button>
         <button
           aria-label={`Remove ${project.name}`}
-          className="mr-1 flex size-5 items-center justify-center rounded text-muted-foreground/60 opacity-0 transition-opacity hover:bg-sidebar-row-hover hover:text-destructive group-hover/project:opacity-100 focus:opacity-100 [@media(hover:none)]:opacity-100"
+          className="mr-1 flex size-5 items-center justify-center rounded text-muted-foreground/60 opacity-0 transition-opacity group-hover/project:opacity-100 hover:bg-sidebar-row-hover hover:text-destructive focus:opacity-100 [@media(hover:none)]:opacity-100"
           onClick={onRemove}
           title="Remove project"
           type="button"
@@ -406,7 +470,9 @@ function LocalThreadRow({
       ) : (
         <span className="size-2 shrink-0 rounded-full bg-border" />
       )}
-      <span className="min-w-0 flex-1 truncate text-xs">{session.title}</span>
+      <span className="min-w-0 flex-1 truncate text-[13px]">
+        {session.title}
+      </span>
     </Link>
   )
 }
@@ -507,7 +573,7 @@ function ResolvedThreadGroup({
               to="/agents/threads"
               search={{ resolved: true, page: 1 }}
               onClick={onNavigate}
-              className="mt-0.5 flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-foreground"
+              className="mt-0.5 flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[13px] text-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-foreground"
             >
               Show all
             </Link>
@@ -610,9 +676,7 @@ function ThreadRow({
             <span
               className={cn(
                 "size-2 shrink-0 rounded-full",
-                showFinishedIndicator
-                  ? "bg-primary"
-                  : "bg-border"
+                showFinishedIndicator ? "bg-primary" : "bg-border"
               )}
               aria-label={
                 showFinishedIndicator ? "Thread finished" : "Thread viewed"
@@ -627,7 +691,7 @@ function ThreadRow({
               <title>{source.label}</title>
             </SourceIcon>
           )}
-          <span className="min-w-0 flex-1 truncate text-xs">
+          <span className="min-w-0 flex-1 truncate text-[13px]">
             {thread.title}
           </span>
           {!compact && prMeta && PrIcon && (

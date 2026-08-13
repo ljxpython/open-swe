@@ -20,6 +20,10 @@ from agent.webhooks import common as webhook_common
 from agent.webhooks import slack as slack_webhooks
 
 
+async def _fake_trace_url(thread_id: str, **kwargs: object) -> str:
+    return "https://smith/x"
+
+
 class _FakeNotFoundError(Exception):
     status_code = 404
 
@@ -37,6 +41,9 @@ class _FakeThreadsClient:
         if self.thread is None:
             raise AssertionError("thread must be provided when raise_not_found is False")
         return self.thread
+
+    async def update(self, *, thread_id: str, metadata: dict) -> None:
+        cast(dict, self.thread)["metadata"].update(metadata)
 
 
 class _FakeClient:
@@ -107,6 +114,28 @@ def test_source_context_does_not_reuse_permalink_for_different_slack_thread(
 
     slack_thread = cast(dict[str, object], enriched["slack_thread"])
     assert "permalink" not in slack_thread
+
+
+def test_upsert_preserves_partially_initialized_owner(monkeypatch: pytest.MonkeyPatch) -> None:
+    owner_context = {"slack_thread": {"triggering_user_id": "UOWNER"}}
+    threads = _FakeThreadsClient({"metadata": {"source_context": owner_context}})
+    monkeypatch.setattr(webhook_common, "get_client", lambda url: _FakeClient(threads))
+
+    async def upsert(github_login: str, user_email: str, slack_user_id: str) -> None:
+        await webhook_common.upsert_agent_thread_owner_metadata(
+            "thread-id",
+            source="slack",
+            github_login=github_login,
+            user_email=user_email,
+            source_context={"slack_thread": {"triggering_user_id": slack_user_id}},
+        )
+
+    asyncio.run(upsert("owner-gh", "owner@example.com", "UOWNER"))
+    asyncio.run(upsert("commenter-gh", "commenter@example.com", "UCOMMENTER"))
+    metadata = cast(dict, threads.thread)["metadata"]
+    assert metadata["github_login"] == "owner-gh"
+    assert metadata["triggering_user_email"] == "owner@example.com"
+    assert metadata["source_context"] == owner_context
 
 
 def test_select_slack_context_messages_uses_thread_start_when_no_prior_mention() -> None:
@@ -561,7 +590,7 @@ def test_post_slack_trace_reply_has_no_tip(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(
         slack_utils, "post_slack_thread_reply_with_ts", fake_post_slack_thread_reply_with_ts
     )
-    monkeypatch.setattr(slack_utils, "get_langsmith_trace_url", lambda thread_id: "https://smith/x")
+    monkeypatch.setattr(slack_utils, "get_langsmith_trace_url", _fake_trace_url)
 
     asyncio.run(post_slack_trace_reply("C123", "1.0", "thread-id"))
 
@@ -721,7 +750,8 @@ def _setup_slack_mention_fakes(
             "profile": {
                 "email": "mason@example.com",
                 "display_name": "Mason",
-            }
+            },
+            "tz": "America/New_York",
         }
 
     async def fake_fetch_slack_thread_messages(channel_id: str, thread_ts: str) -> list[dict]:
@@ -772,9 +802,7 @@ def _setup_slack_mention_fakes(
         threads = _FakeThreadsClientForProcess()
 
     monkeypatch.setenv("DASHBOARD_BASE_URL", "https://app.example.com")
-    monkeypatch.setattr(
-        slack_webhooks, "get_langsmith_trace_url", lambda thread_id: "https://smith/x"
-    )
+    monkeypatch.setattr(slack_webhooks, "get_langsmith_trace_url", _fake_trace_url)
     monkeypatch.setattr(webhook_common, "SLACK_BOT_USERNAME", "open-swe")
     monkeypatch.setattr(webhook_common, "get_slack_user_info", fake_get_slack_user_info)
     monkeypatch.setattr(
@@ -908,9 +936,12 @@ def test_process_slack_mention_creates_thread_first_run_without_trace_reply(
     assert kwargs["if_not_exists"] == "create"
     assert kwargs["multitask_strategy"] == "interrupt"
     assert kwargs["durability"] == "sync"
-    assert kwargs["config"]["configurable"]["slack_thread"]["thread_ts"] == thread_ts
+    slack_thread_context = kwargs["config"]["configurable"]["slack_thread"]
+    assert slack_thread_context["thread_ts"] == thread_ts
+    assert slack_thread_context["triggering_user_timezone"] == "America/New_York"
     prompt_block = kwargs["input"]["messages"][0]["content"][0]
     assert "## Default Repository Hint\nlangchain-ai/open-swe" in prompt_block["text"]
+    assert "## Triggering User Time Zone\nAmerica/New_York" in prompt_block["text"]
     assert (
         "Use this only if the Slack conversation does not identify a different repository."
         in (prompt_block["text"])

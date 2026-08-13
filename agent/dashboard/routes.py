@@ -36,6 +36,7 @@ from .enabled_repos import (
 from .eval_jobs import (
     get_reviewer_eval_status,
 )
+from .github_token_auth import admin_session_for_github_token, bearer_github_token
 from .notion_oauth import (
     NOTION_STATE_COOKIE_NAME,
     NotionOAuthError,
@@ -60,6 +61,7 @@ from .oauth import (
     require_session,
     sanitize_redirect_to,
 )
+from .oidc_auth import admin_session_for_actions_oidc, is_actions_oidc_token
 from .options import (
     FABLE_MODEL_IDS,
     SUPPORTED_MODELS,
@@ -129,12 +131,18 @@ from .review_styles import (
     normalize_repo_full_name,
     set_custom_prompt,
 )
+from .sandbox_settings import (
+    SandboxSettingsUpdate,
+    get_sandbox_settings,
+    upsert_sandbox_settings,
+)
 from .schedules import (
     ScheduleCreateBody,
     ScheduleUpdateBody,
     create_agent_schedule,
     delete_agent_schedule,
     list_agent_schedules,
+    trigger_agent_schedule,
     update_agent_schedule,
 )
 from .skills import (
@@ -196,12 +204,22 @@ from .thread_api import (
 )
 from .user_credentials import (
     CurrentsCredentialsUpdate,
+    UserLangSmithCredentialsUpdate,
     connect_currents,
     connect_notion,
     disconnect_currents,
     disconnect_notion,
     get_currents_status,
     get_notion_status,
+)
+from .user_credentials import (
+    connect_langsmith as connect_user_langsmith,
+)
+from .user_credentials import (
+    disconnect_langsmith as disconnect_user_langsmith,
+)
+from .user_credentials import (
+    get_langsmith_status as get_user_langsmith_status,
 )
 from .user_instructions import (
     UserInstructionsUpdate,
@@ -245,6 +263,20 @@ def _admin_session(session: dict[str, Any] = _SESSION_DEP) -> dict[str, Any]:
 
 
 _ADMIN_DEP = Depends(_admin_session)
+
+
+async def _admin_session_or_ci_token(request: Request) -> dict[str, Any]:
+    """Admin gate that also accepts CI credentials: an Actions OIDC token, or an
+    admin's GitHub personal access token."""
+    token = bearer_github_token(request)
+    if token:
+        if is_actions_oidc_token(token):
+            return await admin_session_for_actions_oidc(token)
+        return await admin_session_for_github_token(token)
+    return _require_admin(require_session(request))
+
+
+_ADMIN_OR_TOKEN_DEP = Depends(_admin_session_or_ci_token)
 
 
 async def _filter_repo_records_for_user(
@@ -569,6 +601,31 @@ async def disconnect_my_currents(
     return status.get("currents", {"connected": False})
 
 
+@router.get("/my-credentials/langsmith")
+async def get_my_langsmith_status(
+    session: dict[str, Any] = _SESSION_DEP,
+) -> dict[str, Any]:
+    status = await get_user_langsmith_status(session["sub"])
+    return status.get("langsmith", {"connected": False})
+
+
+@router.put("/my-credentials/langsmith")
+async def connect_my_langsmith(
+    update: UserLangSmithCredentialsUpdate,
+    session: dict[str, Any] = _SESSION_DEP,
+) -> dict[str, Any]:
+    status = await connect_user_langsmith(session["sub"], update)
+    return status.get("langsmith", {"connected": False})
+
+
+@router.delete("/my-credentials/langsmith")
+async def disconnect_my_langsmith(
+    session: dict[str, Any] = _SESSION_DEP,
+) -> dict[str, Any]:
+    status = await disconnect_user_langsmith(session["sub"])
+    return status.get("langsmith", {"connected": False})
+
+
 @router.get("/my-credentials/notion")
 async def get_my_notion_status(
     session: dict[str, Any] = _SESSION_DEP,
@@ -787,6 +844,21 @@ async def api_set_enabled_review_repo(
 ) -> dict[str, list[str]]:
     repos = await set_review_repo_enabled(update.full_name, update.enabled)
     return {"repos": repos}
+
+
+@router.get("/sandbox-settings")
+async def api_get_sandbox_settings(
+    _admin: dict[str, Any] = _ADMIN_OR_TOKEN_DEP,
+) -> dict[str, Any]:
+    return await get_sandbox_settings()
+
+
+@router.put("/sandbox-settings")
+async def api_set_sandbox_settings(
+    body: SandboxSettingsUpdate,
+    _admin: dict[str, Any] = _ADMIN_OR_TOKEN_DEP,
+) -> dict[str, Any]:
+    return await upsert_sandbox_settings(body, updated_by=_admin.get("sub"))
 
 
 @router.get("/repo-snapshots")
@@ -1594,6 +1666,14 @@ async def api_update_schedule(
     return await update_agent_schedule(
         schedule_id, session["sub"], body, email=session.get("email")
     )
+
+
+@router.post("/schedules/{schedule_id}/trigger")
+async def api_trigger_schedule(
+    schedule_id: str,
+    session: dict[str, Any] = _SESSION_DEP,
+) -> dict[str, Any]:
+    return await trigger_agent_schedule(schedule_id, session["sub"], email=session.get("email"))
 
 
 @router.delete("/schedules/{schedule_id}")

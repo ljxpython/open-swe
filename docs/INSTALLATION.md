@@ -220,7 +220,37 @@ DEFAULT_SANDBOX_DELETE_AFTER_STOP_SECONDS="2592000"
 REPO_SNAPSHOT_BASE_IMAGE="<your-docker-hub>/<name-of-your-image>"
 ```
 
-`DEFAULT_SANDBOX_SNAPSHOT_ID` is required when `SANDBOX_TYPE=langsmith`. The server validates this at startup and refuses to boot if it's missing. The snapshot should include the GitHub CLI from `Dockerfile.sandbox`; Open SWE authenticates `git` and `gh` through the LangSmith sandbox proxy using runtime-minted GitHub App installation tokens, not deployment-stored GitHub access tokens.
+A base snapshot is required when `SANDBOX_TYPE=langsmith` — either `DEFAULT_SANDBOX_SNAPSHOT_ID` or the runtime setting described below. The server logs a warning at startup when neither the env var nor a stored setting is present, and sandbox creation fails until one is. The snapshot should include the GitHub CLI from `Dockerfile.sandbox`; Open SWE authenticates `git` and `gh` through the LangSmith sandbox proxy using runtime-minted GitHub App installation tokens, not deployment-stored GitHub access tokens.
+
+### Changing the base snapshot without a redeploy
+
+Admins can override `DEFAULT_SANDBOX_SNAPSHOT_ID` at runtime from the **Repository Snapshots** page (**Base snapshot** field). The stored value wins; clearing it falls back to the env var. Per-repo snapshots still take precedence for runs targeting a repo with a ready snapshot.
+
+The same setting is available over the API, which is how the repo that builds your sandbox image can roll a new snapshot out on its own:
+
+```bash
+curl -X PUT "$OPEN_SWE_BASE_URL/dashboard/api/sandbox-settings" \
+  -H "Authorization: Bearer $ADMIN_GITHUB_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"base_snapshot_id": "<snapshot-uuid>"}'
+```
+
+Admin-gated sandbox-settings requests accept two CI credentials in place of the browser session cookie, both as `Authorization: Bearer`:
+
+**GitHub Actions OIDC (preferred — no stored secret).** A workflow with `permissions: id-token: write` mints a short-lived token that GitHub signs and scopes to the repo, ref, and audience it requested. Allowlist it on the deployment:
+
+```bash
+ADMIN_OIDC_SUBJECTS="acme/sandbox-images"                       # any workflow/ref in this repo
+# or pin the ref with a full subject:
+# ADMIN_OIDC_SUBJECTS="repo:acme/sandbox-images:ref:refs/heads/main"
+ADMIN_OIDC_AUDIENCE="open-swe"                                  # optional; this is the default
+```
+
+`ADMIN_OIDC_SUBJECTS` is the on/off switch — while it is empty, OIDC auth is unavailable. Entries containing `:` are matched against the token's `sub` claim, and `owner/repo` entries against its `repository` claim. The audience is verified either way, defaulting to `open-swe`; override it only if you set the workflow's requested audience to match. Anyone who can run a workflow on an allowlisted repo/ref gets admin on these endpoints, so keep the list to internal repos.
+
+**Admin personal access token.** The token only needs to identify its owner (`GET /user`), and that login (or email) must appear in `CONFIGURED_ADMINS`. Matching by login needs no token permissions; matching by email needs a token that can read email addresses (classic `user:email`, or the fine-grained "Email addresses" read permission) when the account's email isn't public. Prefer a machine user over a human's token.
+
+`secrets.GITHUB_TOKEN` works for neither: installation tokens have no user identity, and they are not OIDC tokens. `examples/github-actions/set-base-snapshot.yml` is a copy-ready workflow using the OIDC path.
 
 `REPO_SNAPSHOT_BASE_IMAGE` should point at the same published Open SWE sandbox image you used to create the default snapshot (for example, the image built from `./Dockerfile.sandbox`). The admin **Repository Snapshots** page uses it as the `FROM` line when generating per-repo Dockerfile templates. If it is not set, template generation is intentionally disabled so admins do not accidentally build repo-scoped snapshots from a bare image that lacks Open SWE's required tools (`git`, `gh`, `sfw`, language runtimes, and proxy assumptions).
 
@@ -234,6 +264,8 @@ GitHub triggering works automatically once your GitHub App is set up (step 3). U
 - Tag `@openswe` in issue titles or bodies to start a task
 - Tag `@openswe` in issue comments for follow-up instructions
 - Tag `@openswe` in PR review comments to have it address review feedback
+
+The handles this deployment answers to default to `@openswe,@open-swe,@openswe-dev` and are configurable — set `OPEN_SWE_MENTION_TAGS` to a comma-separated list. Handles are matched on a word boundary, so `@openswe` does not fire on `@openswe-preview`. Give each deployment a distinct handle when more than one shares a GitHub org, Slack workspace, or Linear workspace.
 
 Which GitHub users can trigger the agent is controlled by the **user mapping** (GitHub login ⇄ work email ⇄ optional Slack ID), stored in the LangGraph Store rather than in code. Manage it in the dashboard under **Admin → User mappings**:
 
@@ -436,6 +468,15 @@ GITHUB_APP_INSTALLATION_ID=""          # From step 3d
 # === GitHub Webhook (required) ===
 GITHUB_WEBHOOK_SECRET=""               # The secret you generated in step 3b
 
+# === Mention handles (optional) ===
+# Comma-separated handles this deployment answers to, across GitHub, Linear and Slack.
+# Defaults to "@openswe,@open-swe,@openswe-dev".
+OPEN_SWE_MENTION_TAGS=""               # e.g. "@openswe-preview"
+# Comma-separated bot logins to treat as internal rather than untrusted external
+# commenters. Set this to the bot logins of any other Open SWE deployments sharing
+# these repos.
+EXTRA_INTERNAL_BOT_LOGINS=""           # e.g. "openswe-preview[bot]"
+
 # === Dashboard GitHub OAuth (required for the dashboard) ===
 # Direct GitHub OAuth used by the dashboard login flow (not via LangSmith).
 GITHUB_APP_CLIENT_ID=""                # From step 3c
@@ -484,6 +525,10 @@ DASHBOARD_ALLOWED_ORIGINS="http://localhost:3000"  # prod: your frontend origin(
 # Comma-separated GitHub login or email allowlist for admin dashboard endpoints.
 # Empty => nobody is an admin.
 CONFIGURED_ADMINS=""                   # e.g. "alice,bob@my-org.com"
+# Optional; lets a GitHub Actions workflow act as an admin over the API via OIDC
+# (see step 4c). Empty => off.
+ADMIN_OIDC_SUBJECTS=""                 # e.g. "acme/sandbox-images" or "repo:acme/sandbox-images:ref:refs/heads/main"
+ADMIN_OIDC_AUDIENCE=""                 # audience the workflow must request; defaults to "open-swe"
 # URL of the LangGraph server the FastAPI side calls to trigger/stream runs.
 # Defaults to http://localhost:2024 locally; set to your deployment URL in prod.
 LANGGRAPH_URL="http://localhost:2024"
@@ -519,7 +564,7 @@ PUBLIC_REPO_ORG_GATE=""
 # === Sandbox (optional) ===
 # Provider: langsmith (default), modal, daytona, runloop, e2b, or local. See CUSTOMIZATION.md.
 SANDBOX_TYPE="langsmith"
-DEFAULT_SANDBOX_SNAPSHOT_ID=""         # Required when SANDBOX_TYPE=langsmith (see step 4c)
+DEFAULT_SANDBOX_SNAPSHOT_ID=""         # Required when SANDBOX_TYPE=langsmith unless set at runtime by an admin (see step 4c)
 DEFAULT_SANDBOX_SNAPSHOT_FS_CAPACITY_BYTES=""  # Root FS size in bytes (default: 128 GiB)
 DEFAULT_SANDBOX_VCPUS=""               # vCPUs per sandbox (default: 4)
 DEFAULT_SANDBOX_MEM_BYTES=""           # Memory in bytes per sandbox (default: 16 GiB)
@@ -582,24 +627,22 @@ make dev          # uv run langgraph dev
 
 ## 8. Run the dashboard (optional)
 
-The dashboard is the web app in `ui/`. It's a static TanStack Start client that calls the FastAPI dashboard API from step 7. Run it in a third terminal:
+The dashboard is the web app in `ui/`. It's a server-rendered TanStack Start app that calls the FastAPI dashboard API from step 7. Run it in a third terminal:
 
 ```bash
-cd ui
-pnpm install
-cat > .env <<'EOF'
-VITE_DASHBOARD_API_BASE_URL="http://localhost:2024"
-EOF
-pnpm run dev          # vite dev --port 3000 -> http://localhost:3000
+pnpm install          # from the repo root: ui/ and desktop/ are one pnpm workspace
+pnpm run dev          # turbo -> vite dev --port 3000 -> http://localhost:3000
 ```
 
-The dashboard needs `VITE_DASHBOARD_API_BASE_URL` in `ui/.env` pointing at the backend for local dev. The file is intentionally untracked because `.env*` files are gitignored.
+No `ui/.env` is needed: the dev server proxies `/dashboard/api/*` to `DASHBOARD_API_URL`, which defaults to `http://localhost:2024`. Point it elsewhere by exporting that variable before `pnpm run dev`. It is read at build time, so a production build bakes in the backend it proxies to.
 
-The client calls `${VITE_DASHBOARD_API_BASE_URL}/dashboard/api/*` with `credentials: "include"`, so the backend's `osw_session` cookie rides along. Because the UI (`:3000`) and API (`:2024`) are different origins, the backend needs **CORS** enabled for the UI origin — set `DASHBOARD_ALLOWED_ORIGINS="http://localhost:3000"` (CORS is off unless this is set). Keep `DASHBOARD_API_BASE_URL` on an `http://` URL locally so the cookie uses `SameSite=Lax` rather than `Secure`.
+Because the browser only ever talks to `http://localhost:3000`, no **CORS** preflight is involved. `DASHBOARD_ALLOWED_ORIGINS="http://localhost:3000"` is still required, though: the same allowlist is the backend's CSRF gate for every non-GET request, and it compares the browser's `Origin` — the dashboard's — against the origins it knows. Without it, the dashboard reads fine and every save returns `403 CSRF check failed`.
+
+The `osw_session` cookie has to be set on the dashboard origin too: set `DASHBOARD_API_BASE_URL="http://localhost:3000"` and register `http://localhost:3000/dashboard/api/auth/callback` as a GitHub App callback URL. Keep it on an `http://` URL locally so the cookie uses `SameSite=Lax` rather than `Secure`.
 
 For the dashboard login to succeed, you need (from steps 3c / 6): `GITHUB_APP_CLIENT_ID`, `GITHUB_APP_CLIENT_SECRET`, `DASHBOARD_JWT_SECRET`, `DASHBOARD_API_BASE_URL`, `DASHBOARD_BASE_URL`, and `DASHBOARD_ALLOWED_ORIGINS`. To reach the admin pages (user mappings, etc.), add your GitHub login or email to `CONFIGURED_ADMINS`.
 
-Other UI scripts: `pnpm run build`, `pnpm run typecheck`, `pnpm run lint`, `pnpm run test`.
+Other root scripts run the same task across the workspace through Turborepo: `pnpm run build`, `pnpm run typecheck`, `pnpm run lint`, `pnpm run test`. Scope one to a package with `pnpm --filter open-swe-dashboard run <script>`.
 
 ### Run the desktop app (optional)
 
@@ -610,9 +653,8 @@ The Electron app in `desktop/` includes the compiled dashboard UI. It only needs
 backend to be running:
 
 ```bash
-pnpm --dir ui install
-pnpm --dir desktop install
-pnpm --dir desktop run dev
+pnpm install                  # from the repo root
+pnpm run dev:desktop
 ```
 
 Development connects to `http://localhost:2024`. To use a hosted backend instead, run
@@ -700,9 +742,11 @@ The `langgraph.json` at the project root defines the graphs and HTTP app baked i
 
 **Backend — LangGraph Cloud / Platform:** alternatively, push your code to a GitHub repository, connect the repo to LangGraph Cloud, set the same environment variables in the deployment config, and use the hosted deployment URL for `LANGGRAPH_URL` and webhook callbacks.
 
-**Dashboard** — the `ui/` app deploys to [Vercel](https://vercel.com/). The recommended production setup uses **same-origin** requests to `/dashboard/api/*` (leave `VITE_DASHBOARD_API_BASE_URL` empty), and `ui/vercel.json` rewrites those to the hosted backend. In this mode, set both `DASHBOARD_API_BASE_URL` and the GitHub App dashboard callback URL to the Vercel/dashboard origin (for example, `https://your-dashboard.vercel.app/dashboard/api/auth/callback`). The OAuth callback response then sets the `osw_session` cookie on the dashboard host, and later same-origin `/dashboard/api/*` requests include it. Update the rewrite `destination` in `ui/vercel.json` to your own backend URL.
+**Dashboard** — the `ui/` app deploys to [Vercel](https://vercel.com/). The build detects Vercel and emits a Nitro server that renders routes on request, so set `DASHBOARD_API_URL` in the Vercel project to your hosted backend URL. Browser requests to `/dashboard/api/*` are rewritten to it at the platform edge (no function in the path, so streaming responses are unaffected), and server renders call it directly with the request's `osw_session` cookie forwarded.
 
-Alternatively, you can run the dashboard as a direct cross-origin client: set `VITE_DASHBOARD_API_BASE_URL` to the hosted backend origin, set `DASHBOARD_API_BASE_URL` to that same backend origin, and include the dashboard origin in `DASHBOARD_ALLOWED_ORIGINS`.
+Requests are therefore **same-origin**: set both `DASHBOARD_API_BASE_URL` and the GitHub App dashboard callback URL to the Vercel/dashboard origin (for example, `https://your-dashboard.vercel.app/dashboard/api/auth/callback`). The OAuth callback response then sets the `osw_session` cookie on the dashboard host, and later `/dashboard/api/*` requests include it.
+
+Alternatively, you can have the browser call the backend cross-origin: set `VITE_DASHBOARD_API_BASE_URL` to the hosted backend origin, set `DASHBOARD_API_BASE_URL` to that same backend origin, and include the dashboard origin in `DASHBOARD_ALLOWED_ORIGINS`. Keep `DASHBOARD_API_URL` pointed at the same backend so server renders reach it too. In this mode `osw_session` belongs to the backend's origin, so the dashboard's own requests never carry it and the session is resolved on the client instead — pages render unauthenticated and fill in after hydration.
 
 ## Troubleshooting
 
@@ -730,13 +774,13 @@ Alternatively, you can run the dashboard as a direct cross-origin client: set `V
 ### Dashboard UI can't reach the backend
 
 - Confirm the backend is running via `make dev` on `:2024` (not `make run` on `:8000`).
-- Confirm `ui/.env` has `VITE_DASHBOARD_API_BASE_URL=http://localhost:2024`. If it's empty, the UI falls back to relative `/dashboard/api/*`, which only works behind the Vercel rewrite, not in local dev.
+- Confirm the dev server is proxying: `curl -i http://localhost:3000/dashboard/api/me` should return the backend's `401`, not an HTML page. If the backend is on another port, export `DASHBOARD_API_URL` before `pnpm run dev`.
 
 ### Sandbox creation failures
 
 - Verify `LANGSMITH_API_KEY_PROD` is set and valid
 - Check LangSmith sandbox quotas in your workspace settings
-- If the server refuses to start with `DEFAULT_SANDBOX_SNAPSHOT_ID must be set`, build a snapshot (see step 4c) and export its UUID
+- If sandbox creation fails with `No base snapshot configured`, build a snapshot (see step 4c) and either export its UUID as `DEFAULT_SANDBOX_SNAPSHOT_ID` or set it as the base snapshot on the admin **Repository Snapshots** page
 - If you see `Failed to create sandbox from snapshot '<id>'`, confirm the snapshot exists in your workspace and has status `ready`
 - If you get a 403 Forbidden error on the sandbox endpoints, your LangSmith workspace may not have sandbox access enabled — contact LangSmith support
 

@@ -90,6 +90,21 @@ async function expectTranscriptVisible(page: Page) {
   }).toPass({ timeout: 60000 });
 }
 
+async function waitForThreadIdle(page: Page, threadId: string) {
+  await expect
+    .poll(
+      async () => {
+        const res = await page.request.get(
+          `/dashboard/api/threads/${threadId}?mark_viewed=false`,
+        );
+        if (!res.ok()) return "unknown";
+        return ((await res.json()) as { status?: string }).status ?? "unknown";
+      },
+      { timeout: 30_000, intervals: [500] },
+    )
+    .not.toBe("running");
+}
+
 async function latestPrBody(page: Page): Promise<string> {
   const res = await page.request.get("/mock/github/data");
   expect(res.ok()).toBeTruthy();
@@ -153,6 +168,67 @@ test.describe("Slack → web handoff (real dashboard UI)", () => {
     ).toBeVisible();
   });
 
+  // A cold load of a finished thread must hydrate from `getState()` alone. The
+  // event stream is blocked so run replay can't stand in for that read: a
+  // long-finished run has no replay left, which is what makes a broken hydrate
+  // surface as a permanently empty transcript.
+  test("a cold load renders a finished thread's transcript without run replay", async ({
+    page,
+  }) => {
+    await loginAs(page, SAME_USER);
+    await openThreadViaSlackLink(page);
+    const threadId = new URL(page.url()).pathname.split("/").pop() ?? "";
+    expect(threadId).not.toBe("");
+    await waitForThreadIdle(page, threadId);
+
+    await page.route("**/stream/events", (route) => route.abort());
+    await page.goto(`/agents/${threadId}`);
+    await expect(
+      page.getByRole("link", { name: "Add greet() helper" }).first(),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByText("This thread has no messages yet."),
+    ).toHaveCount(0);
+  });
+
+  test("streams after thread navigation and foreground recovery", async ({
+    page,
+  }) => {
+    await loginAs(page, SAME_USER);
+    await openThreadViaSlackLink(page);
+    const threadId = new URL(page.url()).pathname.split("/").pop() ?? "";
+    expect(threadId).not.toBe("");
+    await waitForThreadIdle(page, threadId);
+
+    await page.getByRole("link", { name: "New Agent" }).click();
+    await expect(page).toHaveURL(/\/agents\/?$/);
+    await page.goBack();
+    await expect(page).toHaveURL(new RegExp(`/agents/${threadId}$`));
+    await expect(
+      page.getByRole("link", { name: "Add greet() helper" }).first(),
+    ).toBeVisible();
+
+    const hydrated = page.waitForResponse((response) => {
+      const path = new URL(response.url()).pathname;
+      return (
+        response.request().method() === "GET" &&
+        path === `/dashboard/api/threads/${threadId}/state`
+      );
+    });
+    await page.evaluate(() =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+    expect((await hydrated).ok()).toBeTruthy();
+
+    await typeIntoComposer(page, "Can you also add a docstring?");
+    await expect(
+      page.getByText(/anything else you'd like changed/),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Add greet() helper" }).first(),
+    ).toBeVisible();
+  });
+
   test("does not expose the originating Slack thread for public repos", async ({
     page,
   }) => {
@@ -180,11 +256,13 @@ test.describe("Slack → web handoff (real dashboard UI)", () => {
     await expect.poll(() => latestPrBody(page)).toContain("Slack thread");
   });
 
-  test("shows follow-ups queued while the agent is still running", async ({
+  test("keeps follow-ups visible while queued during a running agent", async ({
     page,
   }, testInfo) => {
     await loginAs(page, SAME_USER);
     await openRunningThreadViaSlackLink(page);
+    const threadId = new URL(page.url()).pathname.split("/").pop() ?? "";
+    expect(threadId).not.toBe("");
 
     const queuedText = "Please queue this follow-up while you finish the PR.";
     const busyComposer = composerFor(page, /Send a message to queue next/);
@@ -204,6 +282,19 @@ test.describe("Slack → web handoff (real dashboard UI)", () => {
       path: screenshotPath,
       contentType: "image/png",
     });
+
+    const serverRefresh = await page.waitForResponse((response) => {
+      const path = new URL(response.url()).pathname;
+      return (
+        response.request().method() === "GET" &&
+        path === `/dashboard/api/threads/${threadId}`
+      );
+    });
+    expect(serverRefresh.ok()).toBeTruthy();
+    await expect(serverRefresh.json()).resolves.toMatchObject({
+      status: "running",
+    });
+    await expect(queuedMessage).toBeVisible();
   });
 
   test("stops a Slack-started run from the web app", async ({ page }) => {

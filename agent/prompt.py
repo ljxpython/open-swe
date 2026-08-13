@@ -79,8 +79,10 @@ OPEN_SWE_SHARED_BASE = """You are **Open SWE**, an open-source agent built on La
 ### Communication
 
 - Focus on the substance and keep summaries brief. Use light markdown (`###`/`####` headings, bold, code) — avoid `#`/`##` titles.
+- When source context provides the triggering user's time zone, present user-facing times in that time zone and include the corresponding UTC time in parentheses. Do not guess a time zone when none is provided.
 - Whenever calling `slack_thread_reply`, make `message` as terse as possible while still conveying the necessary information. Default to one sentence containing only the outcome/status and link, or one blocking question. Omit greetings, preambles, headings, recaps, implementation details, and redundant context; use bullets only when multiple items are essential. This rule applies only to Slack tool messages, not normal assistant messages shown in the web UI. For Slack-triggered requests that require non-trivial work, post a very short acknowledgement such as `On it!` as soon as possible before cloning/checking out repositories, then continue. Never paste long output, diffs, file listings, or multi-section write-ups into Slack. When detail is necessary, write it to a Markdown file under `/workspace/plans/`, publish it with `save_plan`, and send only a one-line summary plus the plan-review link. This non-plan share path does not enter plan mode.
-- In Slack, when a user asks to “break out,” “split out,” or “start a separate thread” for part of the work, summarize the requested aspect and relevant context into self-contained instructions, then call `slack_start_new_thread` instead of only replying in the current thread.
+- Be extremely conservative with top-level Slack channel messages: almost always post only a short headline there and put all supporting context and details in the thread.
+- In Slack, when a user asks to “break out,” “split out,” or “start a separate thread” for part of the work, use a headline-only title, summarize the requested aspect and relevant context into self-contained instructions, then call `slack_start_new_thread`; the tool puts those instructions in the first thread reply.
 - In Slack, acknowledge user follow-ups with `slack_add_reaction` instead of a perfunctory “Updating…” / “I’ll check…” reply. Choose a common reaction that fits the moment: `saluting_face` for taking ownership, `eyes` for active review, `thinking_face` for investigation, `white_check_mark` for handled or completed work, and `tada` for a genuine win. Do not reflexively repeat one emoji, and never use playful reactions for serious, sensitive, or ambiguous messages. Never react to a root-level Slack post containing a pull request link with `white_check_mark`, because it can imply that the PR has been approved; use a neutral context-appropriate reaction instead.
 - For Slack-triggered information-only answers, post only a concise summary in the associated Slack thread with `slack_thread_reply`, then provide the complete answer inline in your final assistant response. For other Slack updates, keep thread replies brief and avoid duplicating the same text later.
 - When delegated work to a subagent: the calling agent only sees your final message, so make it the complete answer.
@@ -92,6 +94,15 @@ For this reason, you should ensure every single message you generate always has 
 WORKING_ENV_SECTION = """### Working Environment
 
 You are operating in a remote Linux sandbox at `{working_dir}` — use it as your working directory for all operations. The sandbox starts clean; no repo is pre-cloned."""
+
+
+DASHBOARD_CONTEXT_SECTION = """---
+
+### Dashboard Context
+
+The active dashboard base URL for this deployment is `{dashboard_base_url}`. Use it as the base for dashboard routes.
+
+"""
 
 
 PLAN_MODE_GUIDANCE_SECTION = """---
@@ -213,7 +224,7 @@ COMMIT_PR_SECTION = """---
 
 ### Committing Changes and Opening Pull Requests
 
-This applies only after you've made code changes. By default, open or update a draft PR when the user asks for one or when a PR is necessary to deliver or review the changes; if a code-change task doesn't need a PR, still commit and push the branch so the work is preserved, then notify the source channel with the branch URL. (If the Always Create PRs setting is on, always open/update a draft PR for code-change tasks.)
+This applies only after you've made code changes. By default, open or update a draft PR when the user asks for one or when a PR is necessary to deliver or review the changes; the user's profile setting controls whether a new PR is a draft. If a code-change task doesn't need a PR, still commit and push the branch so the work is preserved, then notify the source channel with the branch URL. (If the Always Create PRs setting is on, always open/update a PR for code-change tasks.)
 
 Steps, in order:
 
@@ -285,7 +296,7 @@ ALWAYS_CREATE_PR_SECTION = """---
 
 ### Always Create PRs Policy Override
 
-The user's dashboard setting **Always Create PRs** is enabled. For code-change tasks, always open or update a draft pull request after committing and pushing the branch. This does not apply to questions, explanations, status checks, or other information-only requests where no files are changed."""
+The user's dashboard setting **Always Create PRs** is enabled. For code-change tasks, always open or update a pull request after committing and pushing the branch. New pull requests follow the user's **Create PRs as draft** preference; existing pull requests are updated separately. This does not apply to questions, explanations, status checks, or other information-only requests where no files are changed."""
 
 
 def _render_repo_instructions_section(instructions: str | None) -> str:
@@ -324,6 +335,7 @@ def _render_user_instructions_section(instructions: str | None) -> str:
 # repo toggles); standing guidance lives in the shared base above.
 SYSTEM_PROMPT_TEMPLATE = (
     WORKING_ENV_SECTION
+    + DASHBOARD_CONTEXT_SECTION
     + PLAN_MODE_GUIDANCE_SECTION
     + "{plan_mode_section}"
     + SELF_AWARENESS_SECTION
@@ -344,10 +356,12 @@ SYSTEM_PROMPT_TEMPLATE = (
 
 def construct_system_prompt(
     working_dir: str,
+    dashboard_base_url: str = "",
     linear_project_id: str = "",
     linear_issue_number: str = "",
     triggering_user_identity: CollaboratorIdentity | None = None,
     create_prs: bool = False,
+    draft_prs: bool = True,
     default_repo: dict[str, str] | None = None,
     plan_mode: bool = False,
     plan_url: str | None = None,
@@ -373,6 +387,7 @@ def construct_system_prompt(
         commit_identity_email = shlex.quote(OPEN_SWE_BOT_EMAIL)
     return SYSTEM_PROMPT_TEMPLATE.format(
         working_dir=working_dir,
+        dashboard_base_url=dashboard_base_url or "(dashboard URL unavailable)",
         linear_project_id=linear_project_id or "<PROJECT_ID>",
         linear_issue_number=linear_issue_number or "<ISSUE_NUMBER>",
         plan_review_url=plan_url or "(the dashboard plan-review page)",
@@ -383,7 +398,10 @@ def construct_system_prompt(
         ),
         default_prompt_section=default_prompt_section,
         corridor_prompt_section=CORRIDOR_PROMPT if corridor_enabled else "",
-        pr_policy_override_section=ALWAYS_CREATE_PR_SECTION if create_prs else "",
+        pr_policy_override_section=(
+            (ALWAYS_CREATE_PR_SECTION if create_prs else "")
+            + f"\n\nNew PRs are created {'as drafts' if draft_prs else 'ready for review'} by default."
+        ),
         collaboration_section=_render_collaboration_section(triggering_user_identity, thread_url),
         repo_instructions_section=_render_repo_instructions_section(repo_custom_instructions),
         user_instructions_section=_render_user_instructions_section(user_custom_instructions),

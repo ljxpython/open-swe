@@ -47,6 +47,7 @@ from .dashboard.agent_overrides import (
     normalize_profile_overrides,
     normalize_profile_subagent_overrides,
     profile_create_prs,
+    profile_draft_prs,
     resolve_github_login,
 )
 from .dashboard.agent_usage import record_agent_thread_usage
@@ -57,6 +58,7 @@ from .dashboard.options import (
     model_supports_effort,
 )
 from .dashboard.repo_snapshots import resolve_repo_snapshot_id
+from .dashboard.sandbox_settings import get_admin_base_snapshot_id
 from .dashboard.skills import SKILLS_NAMESPACE
 from .dashboard.team_settings import (
     get_effective_gateway_enabled,
@@ -82,7 +84,6 @@ from .middleware import (
     SanitizeFireworksMessagesMiddleware,
     SanitizeThinkingBlocksMiddleware,
     SanitizeToolInputsMiddleware,
-    SlackAssistantStatusMiddleware,
     SubdirAgentsReadMiddleware,
     TimeoutWrapupMiddleware,
     ToolErrorMiddleware,
@@ -139,7 +140,7 @@ from .utils.authorship import (
     OPEN_SWE_BOT_NAME,
     resolve_triggering_user_identity,
 )
-from .utils.dashboard_links import dashboard_plan_url, dashboard_thread_url
+from .utils.dashboard_links import dashboard_base_url, dashboard_plan_url, dashboard_thread_url
 from .utils.deferred_model import make_deferred_error_model
 from .utils.github_app import get_github_app_installation_token_with_expiry
 from .utils.github_org_membership import is_user_active_org_member
@@ -280,19 +281,22 @@ async def _resolve_proxy_token(
     return token, expires_at, None
 
 
-async def _resolve_snapshot_id_for_repo(repo: dict[str, str] | None) -> str | None:
-    """Resolve a repo's ready snapshot id; ``None`` falls back to the default.
+async def _resolve_snapshot_id(repo: dict[str, str] | None) -> str | None:
+    """Resolve the snapshot a new sandbox boots from.
 
+    A repo's ready snapshot wins, then the admin-configured base snapshot.
     Never raises: any failure resolves to ``None`` so sandbox creation falls
     back to the configured ``DEFAULT_SANDBOX_SNAPSHOT_ID``.
     """
-    if not repo:
-        return None
-    try:
-        return await resolve_repo_snapshot_id(repo.get("owner"), repo.get("name"))
-    except Exception:  # noqa: BLE001
-        logger.debug("Failed to resolve repo-scoped snapshot", exc_info=True)
-        return None
+    if repo:
+        try:
+            repo_snapshot_id = await resolve_repo_snapshot_id(repo.get("owner"), repo.get("name"))
+        except Exception:  # noqa: BLE001
+            logger.debug("Failed to resolve repo-scoped snapshot", exc_info=True)
+            repo_snapshot_id = None
+        if repo_snapshot_id:
+            return repo_snapshot_id
+    return await get_admin_base_snapshot_id()
 
 
 async def _create_sandbox_with_proxy(
@@ -303,7 +307,7 @@ async def _create_sandbox_with_proxy(
     repo: dict[str, str] | None = None,
 ) -> SandboxBackendProtocol:
     """Create a new sandbox with GitHub proxy auth configured."""
-    snapshot_id = await _resolve_snapshot_id_for_repo(repo)
+    snapshot_id = await _resolve_snapshot_id(repo)
     sandbox_backend = await create_sandbox(snapshot_id=snapshot_id)
 
     sandbox_type = os.getenv("SANDBOX_TYPE", "langsmith")
@@ -381,8 +385,7 @@ async def _refresh_github_proxy_or_fail(
 
 
 async def _configure_git_identity(sandbox_backend: SandboxBackendProtocol) -> None:
-    await asyncio.to_thread(
-        sandbox_backend.execute,
+    await sandbox_backend.aexecute(
         f"git config --global user.name '{OPEN_SWE_BOT_NAME}' && "
         f"git config --global user.email '{OPEN_SWE_BOT_EMAIL}'",
     )
@@ -394,7 +397,7 @@ async def check_sandbox_reachable(
 ) -> SandboxBackendProtocol:
     """Ping a cached sandbox; an unreachable one fails the run, never gets replaced."""
     try:
-        await asyncio.to_thread(sandbox_backend.execute, "echo ok")
+        await sandbox_backend.aexecute("echo ok")
     except SandboxClientError as exc:
         logger.warning("Cached sandbox is no longer reachable for thread %s", thread_id)
         raise SandboxUnreachableError(thread_id, sandbox_backend.id, str(exc)) from exc
@@ -458,7 +461,8 @@ async def ensure_sandbox_for_thread(
 
     For LangSmith sandboxes, also refreshes the GitHub App proxy auth. When
     ``repo`` has a ``ready`` repo-scoped snapshot, newly created sandboxes boot
-    from it; otherwise the configured ``DEFAULT_SANDBOX_SNAPSHOT_ID`` is used.
+    from it; otherwise the base snapshot (admin setting, else
+    ``DEFAULT_SANDBOX_SNAPSHOT_ID``) is used.
     Re-applies git identity every run because reused/reconnected sandboxes can
     lose their ``--global`` config, and Vercel preview deploys reject commits
     whose author email can't be resolved to a GitHub account.
@@ -729,21 +733,13 @@ async def _cached_tool_loader(key: str, ttl_seconds: float, loader: Any) -> list
         return []
 
 
-async def _load_observability_tools(authorized: bool) -> list[Any]:
-    """Datadog (MCP) + LangSmith read tools when the team has connected them.
-
-    Credentials live server-side in team settings; the sandbox never holds them.
-    Only loaded for authorized (admin / allow-listed) triggering users so an
-    untrusted run cannot exfiltrate team observability data. Failures degrade to
-    no tools so the agent still starts.
-    """
+async def _load_observability_tools(authorized: bool, profile_login: str | None) -> list[Any]:
+    """Load team observability tools for an authorized triggering user."""
     if not authorized:
         return []
     datadog_tools, langsmith_tools = await asyncio.gather(
         _cached_tool_loader(f"tools:datadog:{id(load_datadog_tools)}", 600, load_datadog_tools),
-        _cached_tool_loader(
-            f"tools:langsmith:{id(load_langsmith_tools)}", 600, load_langsmith_tools
-        ),
+        load_langsmith_tools(profile_login),
     )
     return [*datadog_tools, *langsmith_tools]
 
@@ -814,6 +810,7 @@ class PrepareAgentRunMiddleware(BasePrepareRunMiddleware):
         linear_project_id: str,
         linear_issue_number: str,
         create_prs: bool,
+        draft_prs: bool,
         plan_mode: bool,
         corridor_enabled: bool,
     ) -> None:
@@ -827,6 +824,7 @@ class PrepareAgentRunMiddleware(BasePrepareRunMiddleware):
         self._linear_project_id = linear_project_id
         self._linear_issue_number = linear_issue_number
         self._create_prs = create_prs
+        self._draft_prs = draft_prs
         self._plan_mode = plan_mode
         self._corridor_enabled = corridor_enabled
 
@@ -838,6 +836,7 @@ class PrepareAgentRunMiddleware(BasePrepareRunMiddleware):
             "source": self._source,
             "repo": configurable.get("repo"),
             "plan_mode": self._plan_mode,
+            "draft_prs": self._draft_prs,
             "model": self._model_id,
             "effort": self._effort,
         }
@@ -874,6 +873,7 @@ class PrepareAgentRunMiddleware(BasePrepareRunMiddleware):
     async def _prepare(self, state: PrepareRunState, runtime: Runtime) -> dict[str, Any]:  # noqa: ARG002
         github_token, _expires_at = await resolve_github_token(self._config, self._thread_id)
         configurable = (self._config or {}).get("configurable") or {}
+        configurable["draft_prs"] = self._draft_prs
         prompt_default_repo = await _resolve_prompt_default_repo(configurable)
         triggering_user_identity_task = asyncio.create_task(
             asyncio.to_thread(
@@ -933,10 +933,12 @@ class PrepareAgentRunMiddleware(BasePrepareRunMiddleware):
             "work_dir": work_dir,
             "rendered_system_prompt": construct_system_prompt(
                 working_dir=work_dir,
+                dashboard_base_url=dashboard_base_url(),
                 linear_project_id=self._linear_project_id,
                 linear_issue_number=self._linear_issue_number,
                 triggering_user_identity=triggering_user_identity,
                 create_prs=self._create_prs,
+                draft_prs=self._draft_prs,
                 default_repo=prompt_default_repo,
                 plan_mode=self._plan_mode,
                 plan_url=dashboard_plan_url(self._thread_id),
@@ -1036,6 +1038,7 @@ async def get_agent(config: RunnableConfig) -> Pregel:
         subagent_effort = per_thread_effort
 
     always_create_prs = profile_create_prs(profile)
+    draft_prs = profile_draft_prs(profile)
     if always_create_prs:
         logger.info("Always Create PRs enabled by profile for %s", profile_login)
 
@@ -1090,13 +1093,11 @@ async def get_agent(config: RunnableConfig) -> Pregel:
 
     observability_authorized = await _observability_authorized(config, profile_login)
     if observability_authorized:
-        observability_tools = await _load_observability_tools(True)
+        observability_tools = await _load_observability_tools(True, profile_login)
     elif await _allowed_org_member(config, profile_login):
-        observability_tools = await _cached_tool_loader(
-            f"tools:langsmith:{id(load_langsmith_tools)}", 600, load_langsmith_tools
-        )
+        observability_tools = await load_langsmith_tools(profile_login)
     else:
-        observability_tools = []
+        observability_tools = await load_langsmith_tools(profile_login, allow_team=False)
     corridor_tools = await _load_corridor_mcp_tools()
     browser_tools = load_browser_tools()
 
@@ -1202,6 +1203,7 @@ async def get_agent(config: RunnableConfig) -> Pregel:
                     linear_project_id=linear_project_id,
                     linear_issue_number=linear_issue_number,
                     create_prs=always_create_prs,
+                    draft_prs=draft_prs,
                     plan_mode=plan_mode,
                     corridor_enabled=bool(corridor_tools),
                 ),
@@ -1221,7 +1223,6 @@ async def get_agent(config: RunnableConfig) -> Pregel:
                 PullRequestCreationGuardMiddleware(),
                 refresh_github_proxy_before_model,
                 check_message_queue_before_model,
-                SlackAssistantStatusMiddleware(),
                 TimeoutWrapupMiddleware(),
                 notify_step_limit_reached,
                 *fallback_middleware,

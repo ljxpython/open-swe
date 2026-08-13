@@ -17,9 +17,13 @@ import {
   seedAgentThreadLists,
   useAgentSkills,
 } from "@/features/agents/lib/queries"
-import { useModelOptions } from "@/features/agents/lib/provider/useModelOptions"
+import {
+  persistModelSelection,
+  useModelOptions,
+} from "@/features/agents/lib/provider/useModelOptions"
 import { useDesktopProjects } from "@/features/agents/lib/desktopProjects"
 import { useProfile, useRepos } from "@/lib/profile"
+import { useSession } from "@/lib/session"
 import {
   requestNotificationPermission,
   setNotificationsPref,
@@ -44,9 +48,14 @@ export function AgentsHome() {
   const stream = useAgentThreadStream()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const session = useSession()
   const { models, defaultSelection } = useModelOptions()
   const [selection, setSelection] = useState<ModelSelection | null>(null)
   const activeSelection = selection ?? defaultSelection
+  const handleSelectionChange = (next: ModelSelection) => {
+    setSelection(next)
+    persistModelSelection(next, session.data?.login ?? "")
+  }
   const activeModel = models.find(
     (model) => model.id === activeSelection?.modelId
   )
@@ -57,8 +66,11 @@ export function AgentsHome() {
   const [runTarget, setRunTarget] = useState<RunTarget>("cloud")
   const [localProjectPath, setLocalProjectPath] = useState<string | null>(null)
   const [localError, setLocalError] = useState<string | null>(null)
-  const { projects: localProjects, addProject, removeProject } =
-    useDesktopProjects()
+  const {
+    projects: localProjects,
+    addProject,
+    removeProject,
+  } = useDesktopProjects()
 
   const reposQuery = useRepos()
   const profileQuery = useProfile()
@@ -205,7 +217,7 @@ export function AgentsHome() {
             disabled={submitting}
             models={models}
             selection={activeSelection}
-            onSelectionChange={setSelection}
+            onSelectionChange={handleSelectionChange}
             repos={reposQuery.data?.repositories}
             selectedRepo={repo}
             onRepoChange={setRepoOverride}
