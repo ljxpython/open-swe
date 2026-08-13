@@ -1,0 +1,238 @@
+<mxfile>
+  <diagram id="autolayout" name="Page-1">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="dashboard.plan_store" value="plan_store" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.options" value="options" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="940" y="600" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.repo_snapshots" value="repo_snapshots" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="990" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.notion_oauth" value="notion_oauth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="1130" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.review_chat_api" value="review_chat_api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="620" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.skills" value="skills" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="970" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.agent_usage" value="agent_usage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="1050" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.user_mappings" value="user_mappings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="780" y="530" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.agent_instructions" value="agent_instructions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="760" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.user_credentials" value="user_credentials" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="1130" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.slack_oauth" value="slack_oauth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.eval_jobs" value="eval_jobs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="230" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.review_api" value="review_api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="600" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.pr_diff" value="pr_diff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="620" y="600" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.user_instructions" value="user_instructions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="310" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard" value="dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="0" y="700" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.plan_api" value="plan_api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.review_style_jobs" value="review_style_jobs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="840" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.repo_cache" value="repo_cache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="390" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.autofix_state" value="autofix_state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="0" y="620" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.agent_overrides" value="agent_overrides" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="620" y="530" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.analyzer_cron" value="analyzer_cron" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="820" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.admin" value="admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="470" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.workflow_approval_api" value="workflow_approval_api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="160" y="40" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.enabled_repos" value="enabled_repos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="920" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.workflow_approval" value="workflow_approval" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="0" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.team_credentials" value="team_credentials" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="550" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.thread_api" value="thread_api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="530" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.team_settings" value="team_settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="780" y="600" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.profiles" value="profiles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="780" y="680" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.repo_access" value="repo_access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="470" y="680" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.schedules" value="schedules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="700" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.oauth" value="oauth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="940" y="680" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.review_styles" value="review_styles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="620" y="840" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard.routes" value="routes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="160" y="700" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="e0" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard" target="dashboard.routes">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="120" y="730"/><mxPoint x="140" y="730"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.agent_instructions">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="250" y="780"/><mxPoint x="250" y="790"/><mxPoint x="250" y="790"/><mxPoint x="250" y="790"/><mxPoint x="460" y="790"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.analyzer_cron">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="260" y="800"/><mxPoint x="260" y="850"/><mxPoint x="260" y="850"/><mxPoint x="260" y="850"/><mxPoint x="300" y="850"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.enabled_repos">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="230" y="820"/><mxPoint x="230" y="940"/><mxPoint x="230" y="940"/><mxPoint x="230" y="940"/><mxPoint x="460" y="940"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.repo_snapshots">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="200" y="840"/><mxPoint x="200" y="1040"/><mxPoint x="200" y="1040"/><mxPoint x="200" y="1040"/><mxPoint x="460" y="1040"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.review_chat_api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="260" y="680"/><mxPoint x="260" y="650"/><mxPoint x="260" y="650"/><mxPoint x="260" y="650"/><mxPoint x="300" y="650"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.admin">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="230" y="640"/><mxPoint x="230" y="500"/><mxPoint x="230" y="500"/><mxPoint x="230" y="500"/><mxPoint x="300" y="500"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.agent_usage">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="190" y="850"/><mxPoint x="190" y="1080"/><mxPoint x="190" y="1080"/><mxPoint x="190" y="1080"/><mxPoint x="300" y="1080"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.eval_jobs">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="190" y="600"/><mxPoint x="190" y="260"/><mxPoint x="190" y="260"/><mxPoint x="190" y="260"/><mxPoint x="300" y="260"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e9" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.repo_cache">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="220" y="620"/><mxPoint x="220" y="420"/><mxPoint x="220" y="420"/><mxPoint x="220" y="420"/><mxPoint x="300" y="420"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.schedules">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="280" y="730"/><mxPoint x="300" y="730"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e11" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.skills">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="220" y="830"/><mxPoint x="220" y="1000"/><mxPoint x="220" y="1000"/><mxPoint x="220" y="1000"/><mxPoint x="300" y="1000"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e12" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.slack_oauth">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="170" y="590"/><mxPoint x="170" y="190"/><mxPoint x="170" y="190"/><mxPoint x="170" y="190"/><mxPoint x="300" y="190"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e13" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.team_credentials">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="250" y="660"/><mxPoint x="250" y="580"/><mxPoint x="250" y="580"/><mxPoint x="250" y="580"/><mxPoint x="300" y="580"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e14" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.user_credentials">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="170" y="860"/><mxPoint x="170" y="1160"/><mxPoint x="170" y="1160"/><mxPoint x="170" y="1160"/><mxPoint x="300" y="1160"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e15" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.routes" target="dashboard.user_instructions">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="200" y="610"/><mxPoint x="200" y="340"/><mxPoint x="200" y="340"/><mxPoint x="200" y="340"/><mxPoint x="300" y="340"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e16" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.agent_instructions" target="dashboard.review_styles">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="790"/><mxPoint x="660" y="790"/><mxPoint x="660" y="790"/><mxPoint x="660" y="790"/><mxPoint x="660" y="830"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e17" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.agent_overrides" target="dashboard.profiles">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="750" y="570"/><mxPoint x="760" y="570"/><mxPoint x="760" y="570"/><mxPoint x="760" y="570"/><mxPoint x="760" y="700"/><mxPoint x="760" y="700"/><mxPoint x="760" y="700"/><mxPoint x="770" y="700"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e18" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.agent_overrides" target="dashboard.team_settings">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="760" y="560"/><mxPoint x="770" y="560"/><mxPoint x="770" y="560"/><mxPoint x="770" y="560"/><mxPoint x="770" y="630"/><mxPoint x="770" y="630"/><mxPoint x="770" y="630"/><mxPoint x="770" y="630"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e19" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.agent_overrides" target="dashboard.user_mappings">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="740" y="540"/><mxPoint x="770" y="540"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e20" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.profiles" target="dashboard.options">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="910" y="700"/><mxPoint x="920" y="700"/><mxPoint x="920" y="700"/><mxPoint x="920" y="700"/><mxPoint x="920" y="640"/><mxPoint x="920" y="640"/><mxPoint x="920" y="640"/><mxPoint x="920" y="640"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e21" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.profiles" target="dashboard.oauth">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="900" y="720"/><mxPoint x="920" y="720"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e22" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.team_settings" target="dashboard.options">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="900" y="620"/><mxPoint x="920" y="620"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e23" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.analyzer_cron" target="dashboard.review_style_jobs">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="430" y="860"/><mxPoint x="460" y="860"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e24" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.review_style_jobs" target="dashboard.review_styles">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="590" y="870"/><mxPoint x="610" y="870"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e25" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.enabled_repos" target="dashboard.review_styles">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="950"/><mxPoint x="660" y="950"/><mxPoint x="660" y="950"/><mxPoint x="660" y="950"/><mxPoint x="660" y="910"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e26" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.plan_api" target="dashboard.plan_store">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="430" y="100"/><mxPoint x="460" y="100"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e27" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.plan_api" target="dashboard.thread_api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="440" y="120"/><mxPoint x="440" y="120"/><mxPoint x="440" y="120"/><mxPoint x="440" y="120"/><mxPoint x="440" y="540"/><mxPoint x="440" y="540"/><mxPoint x="440" y="540"/><mxPoint x="460" y="540"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e28" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.thread_api" target="dashboard.agent_overrides">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="590" y="550"/><mxPoint x="610" y="550"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e29" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.thread_api" target="dashboard.pr_diff">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="600" y="570"/><mxPoint x="610" y="570"/><mxPoint x="610" y="570"/><mxPoint x="610" y="570"/><mxPoint x="610" y="620"/><mxPoint x="610" y="620"/><mxPoint x="610" y="620"/><mxPoint x="610" y="620"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e30" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.repo_access" target="dashboard.review_styles">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="640" y="730"/><mxPoint x="700" y="730"/><mxPoint x="700" y="730"/><mxPoint x="700" y="730"/><mxPoint x="700" y="830"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e31" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.repo_access" target="dashboard.profiles">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="590" y="710"/><mxPoint x="770" y="710"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e32" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.repo_snapshots" target="dashboard.review_styles">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="640" y="1020"/><mxPoint x="700" y="1020"/><mxPoint x="700" y="1020"/><mxPoint x="700" y="1020"/><mxPoint x="700" y="910"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e33" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.review_api" target="dashboard.pr_diff">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="590" y="640"/><mxPoint x="610" y="640"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e34" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.review_chat_api" target="dashboard.thread_api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="440" y="640"/><mxPoint x="450" y="640"/><mxPoint x="450" y="640"/><mxPoint x="450" y="640"/><mxPoint x="450" y="560"/><mxPoint x="450" y="560"/><mxPoint x="450" y="560"/><mxPoint x="460" y="560"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e35" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.review_chat_api" target="dashboard.review_api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="430" y="650"/><mxPoint x="460" y="650"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e36" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.schedules" target="dashboard.thread_api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="450" y="720"/><mxPoint x="460" y="720"/><mxPoint x="460" y="720"/><mxPoint x="460" y="720"/><mxPoint x="460" y="570"/><mxPoint x="460" y="570"/><mxPoint x="460" y="570"/><mxPoint x="460" y="570"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e37" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.schedules" target="dashboard.repo_access">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="430" y="730"/><mxPoint x="460" y="730"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e38" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.user_credentials" target="dashboard.notion_oauth">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="430" y="1160"/><mxPoint x="460" y="1160"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e39" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.workflow_approval_api" target="dashboard.plan_api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="280" y="90"/><mxPoint x="300" y="90"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e40" value="" style="html=1;rounded=0;" edge="1" parent="1" source="dashboard.workflow_approval_api" target="dashboard.workflow_approval">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="280" y="50"/><mxPoint x="300" y="50"/></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

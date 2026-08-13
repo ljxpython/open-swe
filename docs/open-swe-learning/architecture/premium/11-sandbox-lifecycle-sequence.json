@@ -1,0 +1,43 @@
+{
+  "title": "Sandbox 生命周期与不可达保护",
+  "participants": [
+    {"id": "run", "label": "Agent / Reviewer Run"},
+    {"id": "ensure", "label": "ensure_sandbox_for_thread"},
+    {"id": "cache", "label": "SANDBOX_BACKENDS"},
+    {"id": "meta", "label": "Thread metadata"},
+    {"id": "provider", "label": "Sandbox Provider"},
+    {"id": "proxy", "label": "GitHub proxy"},
+    {"id": "git", "label": "Git identity"},
+    {"id": "reviewer", "label": "Reviewer exception"}
+  ],
+  "messages": [
+    {"from": "run", "to": "ensure", "label": "ensure(thread_id, repo, token)"},
+    {"from": "ensure", "to": "cache", "label": "lookup cached proxy"},
+    {"from": "cache", "to": "ensure", "label": "proxy or empty", "return": true},
+    {"from": "ensure", "to": "meta", "label": "read sandbox_id"},
+    {"from": "meta", "to": "ensure", "label": "id or None", "return": true},
+    {"from": "ensure", "to": "provider", "label": "case 3: create from snapshot"},
+    {"from": "provider", "to": "ensure", "label": "new backend", "return": true},
+    {"from": "ensure", "to": "cache", "label": "set proxy(thread_id)"},
+    {"from": "ensure", "to": "meta", "label": "persist sandbox_id"},
+    {"from": "ensure", "to": "proxy", "label": "configure GitHub auth"},
+    {"from": "proxy", "to": "ensure", "label": "token injected", "return": true},
+    {"from": "ensure", "to": "git", "label": "reapply bot name/email"},
+    {"from": "git", "to": "ensure", "label": "identity ready", "return": true},
+    {"from": "ensure", "to": "run", "label": "healthy backend", "return": true},
+    {"from": "run", "to": "ensure", "label": "next run: cached ping", "async": true},
+    {"from": "ensure", "to": "cache", "label": "echo ok"},
+    {"from": "cache", "to": "ensure", "label": "reachable", "return": true},
+    {"from": "ensure", "to": "proxy", "label": "refresh short-lived token"},
+    {"from": "proxy", "to": "ensure", "label": "refreshed", "return": true},
+    {"from": "run", "to": "ensure", "label": "cache miss: reconnect metadata id", "async": true},
+    {"from": "ensure", "to": "provider", "label": "create_sandbox(existing_id)"},
+    {"from": "provider", "to": "ensure", "label": "reconnected backend", "return": true},
+    {"from": "ensure", "to": "run", "label": "unreachable -> SandboxUnreachableError", "return": true},
+    {"from": "reviewer", "to": "ensure", "label": "allow_replacement=True", "async": true},
+    {"from": "ensure", "to": "provider", "label": "replace stale reviewer sandbox"},
+    {"from": "provider", "to": "ensure", "label": "fresh checkout sandbox", "return": true},
+    {"from": "ensure", "to": "meta", "label": "overwrite stale sandbox_id"},
+    {"from": "ensure", "to": "reviewer", "label": "review can re-prepare repo", "return": true}
+  ]
+}

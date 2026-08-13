@@ -1,0 +1,36 @@
+{
+  "title": "Dashboard 首次 run.start 与 SSE 回传",
+  "participants": [
+    {"id": "ui", "label": "Dashboard UI", "actor": true},
+    {"id": "api", "label": "FastAPI\nDashboard routes"},
+    {"id": "proxy", "label": "thread_api.py\ncommand proxy"},
+    {"id": "runtime", "label": "LangGraph\nRuntime"},
+    {"id": "graph", "label": "agent graph\nget_agent"},
+    {"id": "store", "label": "Thread/Profile\nStore"},
+    {"id": "sandbox", "label": "Sandbox\nbackend"},
+    {"id": "model", "label": "LLM\nEndpoint"}
+  ],
+  "messages": [
+    {"from": "ui", "to": "api", "label": "POST /threads/{id}/commands\ncommand=run.start"},
+    {"from": "api", "to": "proxy", "label": "proxy_dashboard_thread_commands()"},
+    {"from": "proxy", "to": "store", "label": "鉴权 + 读取用户 profile / thread metadata"},
+    {"from": "proxy", "to": "proxy", "label": "_enrich_run_start_command()\n重建 configurable / metadata"},
+    {"from": "proxy", "to": "runtime", "label": "langgraph_sdk client\nPOST /threads/{id}/commands"},
+    {"from": "runtime", "to": "graph", "label": "加载 traced_agent\n按 config 创建图"},
+    {"from": "graph", "to": "sandbox", "label": "ensure_sandbox_for_thread()"},
+    {"from": "graph", "to": "model", "label": "make_model() + invoke"},
+    {"from": "model", "to": "graph", "label": "tool call / assistant message", "return": true},
+    {"from": "graph", "to": "sandbox", "label": "execute / read / write tool"},
+    {"from": "sandbox", "to": "graph", "label": "command result", "return": true},
+    {"from": "graph", "to": "store", "label": "checkpoint + thread metadata"},
+    {"from": "runtime", "to": "proxy", "label": "返回 run_id + accepted", "return": true},
+    {"from": "proxy", "to": "api", "label": "更新 latest_run_id / status", "return": true},
+    {"from": "api", "to": "ui", "label": "202 {run_id, status}", "return": true},
+    {"from": "ui", "to": "api", "label": "GET /threads/{id}/stream/events", "async": true},
+    {"from": "api", "to": "proxy", "label": "proxy_dashboard_thread_stream_events()"},
+    {"from": "proxy", "to": "runtime", "label": "打开 LangGraph SSE stream", "async": true},
+    {"from": "runtime", "to": "proxy", "label": "messages / tool / lifecycle events", "async": true},
+    {"from": "proxy", "to": "api", "label": "透传 SSE bytes", "async": true},
+    {"from": "api", "to": "ui", "label": "StreamProvider 消费事件", "async": true}
+  ]
+}

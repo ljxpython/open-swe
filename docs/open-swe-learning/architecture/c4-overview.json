@@ -1,0 +1,308 @@
+{
+  "title": "Open SWE 架构总览",
+  "levels": [
+    {
+      "name": "系统上下文",
+      "elements": [
+        {
+          "id": "ctx-user",
+          "type": "person",
+          "label": "开发者",
+          "tech": "Browser / Electron",
+          "desc": "通过 Dashboard、Desktop、Slack、Linear 或 GitHub 触发编码任务"
+        },
+        {
+          "id": "ctx-openswe",
+          "type": "system",
+          "label": "Open SWE",
+          "tech": "LangGraph + Deep Agents",
+          "desc": "为每个 thread 创建隔离沙箱，运行编码、审查和分析 Agent",
+          "children": "容器视图"
+        },
+        {
+          "id": "ctx-github",
+          "type": "external",
+          "label": "GitHub",
+          "tech": "OAuth / App / Webhooks",
+          "desc": "身份认证、仓库 API、Git 流量和 PR 事件来源"
+        },
+        {
+          "id": "ctx-chat",
+          "type": "external",
+          "label": "Slack / Linear",
+          "tech": "Webhooks / Tokens",
+          "desc": "外部消息入口和 Agent 回复出口"
+        },
+        {
+          "id": "ctx-langgraph",
+          "type": "external",
+          "label": "LangGraph Runtime",
+          "tech": "LangGraph Server + SDK",
+          "desc": "Thread、Run、Checkpoint、SSE 事件和图执行宿主"
+        },
+        {
+          "id": "ctx-model",
+          "type": "external",
+          "label": "模型提供商",
+          "tech": "OpenAI-compatible HTTPS Chat",
+          "desc": "模型调用、推理内容和工具调用决策"
+        },
+        {
+          "id": "ctx-sandbox",
+          "type": "external",
+          "label": "Sandbox Provider",
+          "tech": "LangSmith / Modal / Daytona / Local",
+          "desc": "执行 shell、读写文件、Git 操作和测试的隔离工作区"
+        }
+      ],
+      "relations": [
+        {"from": "ctx-user", "to": "ctx-openswe", "label": "提交任务 / 查看流式结果"},
+        {"from": "ctx-github", "to": "ctx-openswe", "label": "OAuth、App token、PR webhook"},
+        {"from": "ctx-chat", "to": "ctx-openswe", "label": "Slack/Linear 消息与回复"},
+        {"from": "ctx-openswe", "to": "ctx-langgraph", "label": "创建 thread、启动 run、消费 SSE"},
+        {"from": "ctx-langgraph", "to": "ctx-openswe", "label": "图状态、checkpoint、事件流"},
+        {"from": "ctx-openswe", "to": "ctx-model", "label": "模型请求 / tool call"},
+        {"from": "ctx-openswe", "to": "ctx-sandbox", "label": "创建、复用、刷新隔离沙箱"}
+      ]
+    },
+    {
+      "name": "容器视图",
+      "elements": [
+        {
+          "id": "con-ui",
+          "type": "container",
+          "label": "Dashboard UI",
+          "tech": "React + Vite + @langchain/react",
+          "desc": "Agents 聊天、线程列表、审查和配置页面；通过 commands 与 SSE 工作",
+          "children": "组件视图"
+        },
+        {
+          "id": "con-desktop",
+          "type": "container",
+          "label": "Desktop Client",
+          "tech": "Electron + ACP",
+          "desc": "桌面端登录、浏览器 OAuth、ACP 事件桥接和本地窗口"
+        },
+        {
+          "id": "con-fastapi",
+          "type": "container",
+          "label": "FastAPI Web App",
+          "tech": "agent.webapp:app",
+          "desc": "挂载 Dashboard 路由，接收 GitHub/Slack/Linear webhook，并代理 LangGraph 命令",
+          "children": "组件视图"
+        },
+        {
+          "id": "con-runtime",
+          "type": "container",
+          "label": "LangGraph Runtime",
+          "tech": "langgraph.json + langgraph dev",
+          "desc": "加载图入口、管理 thread/run/checkpoint，并提供 SDK API 与 SSE"
+        },
+        {
+          "id": "con-agent",
+          "type": "container",
+          "label": "Main Agent Graph",
+          "tech": "agent.server:get_agent + create_deep_agent",
+          "desc": "按 thread 构造有状态执行图、工具集和 middleware stack",
+          "children": "组件视图"
+        },
+        {
+          "id": "con-reviewer",
+          "type": "container",
+          "label": "Reviewer Graph",
+          "tech": "agent.reviewer:get_reviewer_agent",
+          "desc": "只读 PR 审查图，维护 findings 并发布 review"
+        },
+        {
+          "id": "con-analyzer",
+          "type": "container",
+          "label": "Analyzer Graph",
+          "tech": "agent.analyzer:get_analyzer",
+          "desc": "从历史 PR 与 finding outcome 学习仓库审查风格"
+        },
+        {
+          "id": "con-store",
+          "type": "database",
+          "label": "Thread / Profile / OAuth Store",
+          "tech": "LangGraph state + dashboard persistence",
+          "desc": "保存 thread metadata、用户配置、加密 OAuth token、计划和 webhook 关联"
+        },
+        {
+          "id": "con-sandbox",
+          "type": "container",
+          "label": "Sandbox Lifecycle",
+          "tech": "agent.utils.sandbox_state",
+          "desc": "按 thread 缓存/重连 sandbox，保护未提交工作，刷新 GitHub proxy"
+        },
+        {
+          "id": "con-github",
+          "type": "external",
+          "label": "GitHub Platform",
+          "tech": "OAuth / GitHub App / REST / Git",
+          "desc": "被 Dashboard 和 sandbox proxy 双重使用"
+        },
+        {
+          "id": "con-model",
+          "type": "external",
+          "label": "LLM Endpoint",
+          "tech": "OPENAI_BASE_URL / Chat API",
+          "desc": "由 agent.utils.model.make_model 构造客户端"
+        }
+      ],
+      "relations": [
+        {"from": "con-ui", "to": "con-fastapi", "label": "HTTPS: /dashboard/api"},
+        {"from": "con-desktop", "to": "con-fastapi", "label": "OAuth / ACP bridge"},
+        {"from": "con-fastapi", "to": "con-runtime", "label": "langgraph_sdk Client"},
+        {"from": "con-runtime", "to": "con-agent", "label": "加载 agent graph"},
+        {"from": "con-runtime", "to": "con-reviewer", "label": "加载 reviewer graph"},
+        {"from": "con-runtime", "to": "con-analyzer", "label": "加载 analyzer graph"},
+        {"from": "con-agent", "to": "con-store", "label": "checkpoint / thread metadata"},
+        {"from": "con-reviewer", "to": "con-store", "label": "review findings / style"},
+        {"from": "con-analyzer", "to": "con-store", "label": "style prompt / outcomes"},
+        {"from": "con-agent", "to": "con-sandbox", "label": "ensure_sandbox_for_thread"},
+        {"from": "con-reviewer", "to": "con-sandbox", "label": "review checkout sandbox"},
+        {"from": "con-agent", "to": "con-model", "label": "model call"},
+        {"from": "con-reviewer", "to": "con-model", "label": "model call"},
+        {"from": "con-fastapi", "to": "con-github", "label": "OAuth / webhook / API"},
+        {"from": "con-sandbox", "to": "con-github", "label": "proxy: git + api.github.com"}
+      ]
+    },
+    {
+      "name": "组件视图",
+      "elements": [
+        {
+          "id": "cmp-ui-stream",
+          "type": "component",
+          "label": "AgentThreadStreamProvider",
+          "tech": "ui/src/features/agents/lib/AgentThreadStreamProvider.tsx",
+          "desc": "为当前 thread 建立 LangGraph StreamProvider，消费 SSE 事件"
+        },
+        {
+          "id": "cmp-ui-submit",
+          "type": "component",
+          "label": "useSubmitAgentMessage",
+          "tech": "ui/src/features/agents/lib/provider/useSubmitAgentMessage.ts",
+          "desc": "空闲时提交 run.start，运行中提交消息队列命令"
+        },
+        {
+          "id": "cmp-ui-home",
+          "type": "component",
+          "label": "AgentsHome / AgentThreadView",
+          "tech": "React routes and components",
+          "desc": "线程选择、消息渲染、工具活动和 composer"
+        },
+        {
+          "id": "cmp-api-routes",
+          "type": "component",
+          "label": "Dashboard routes",
+          "tech": "agent/dashboard/routes.py",
+          "desc": "认证、线程 API、配置、审查和 stream endpoint"
+        },
+        {
+          "id": "cmp-api-proxy",
+          "type": "component",
+          "label": "Thread command proxy",
+          "tech": "agent/dashboard/thread_api.py",
+          "desc": "鉴权、线程创建、run.start 入参重建、LangGraph 转发"
+        },
+        {
+          "id": "cmp-api-webhook",
+          "type": "component",
+          "label": "Webhook adapters",
+          "tech": "agent.webapp.py + utils/{github,slack,linear}.py",
+          "desc": "验证签名、推导 deterministic thread_id、启动图运行"
+        },
+        {
+          "id": "cmp-agent-factory",
+          "type": "component",
+          "label": "get_agent",
+          "tech": "agent/server.py:get_agent",
+          "desc": "解析 token、sandbox、profile、model，构造 create_deep_agent"
+        },
+        {
+          "id": "cmp-agent-middleware",
+          "type": "component",
+          "label": "Middleware stack",
+          "tech": "agent/server.py + agent/middleware",
+          "desc": "输入清洗、限步、错误处理、消息队列、超时、熔断和完成保护"
+        },
+        {
+          "id": "cmp-agent-tools",
+          "type": "component",
+          "label": "Curated tools",
+          "tech": "agent/tools/__init__.py",
+          "desc": "GitHub、Slack、Linear、HTTP、计划和 PR 工具"
+        },
+        {
+          "id": "cmp-model",
+          "type": "component",
+          "label": "Model factory",
+          "tech": "agent/utils/model.py:make_model",
+          "desc": "按 provider/model/effort 生成 ChatModel、timeout 和 fallback 参数"
+        },
+        {
+          "id": "cmp-sandbox-state",
+          "type": "component",
+          "label": "Sandbox state",
+          "tech": "agent/utils/sandbox_state.py",
+          "desc": "SANDBOX_BACKENDS、重连策略、不可达保护和 thread metadata"
+        },
+        {
+          "id": "cmp-github-token",
+          "type": "component",
+          "label": "GitHub token resolution",
+          "tech": "agent/utils/auth.py + github_app.py",
+          "desc": "用户 OAuth token 优先，否则使用 App installation token"
+        },
+        {
+          "id": "cmp-checkpoint",
+          "type": "component",
+          "label": "Turn checkpoint",
+          "tech": "utils/turn_checkpoint.py",
+          "desc": "运行开始快照 refs/open-swe/turns/*，供 turn-diff 查询"
+        },
+        {
+          "id": "cmp-reviewer",
+          "type": "component",
+          "label": "Reviewer tool loop",
+          "tech": "agent/reviewer.py",
+          "desc": "prepare_review_repo、findings 演化和 publish_review"
+        },
+        {
+          "id": "cmp-analyzer",
+          "type": "component",
+          "label": "Review style analyzer",
+          "tech": "agent/analyzer.py + dashboard/review_style_jobs.py",
+          "desc": "bootstrap/continual 两种模式保存仓库风格 prompt"
+        },
+        {
+          "id": "cmp-runtime",
+          "type": "component",
+          "label": "Graph entrypoint loader",
+          "tech": "langgraph.json + agent/graphs/*",
+          "desc": "traced_agent、traced_reviewer_agent、traced_analyzer、chat、scheduler"
+        }
+      ],
+      "relations": [
+        {"from": "cmp-ui-home", "to": "cmp-ui-submit", "label": "用户发送消息"},
+        {"from": "cmp-ui-submit", "to": "cmp-api-proxy", "label": "POST commands"},
+        {"from": "cmp-ui-stream", "to": "cmp-api-proxy", "label": "SSE stream/events"},
+        {"from": "cmp-api-routes", "to": "cmp-api-proxy", "label": "dispatch"},
+        {"from": "cmp-api-webhook", "to": "cmp-api-proxy", "label": "same command path"},
+        {"from": "cmp-api-proxy", "to": "cmp-runtime", "label": "SDK invoke / stream"},
+        {"from": "cmp-runtime", "to": "cmp-agent-factory", "label": "load graph"},
+        {"from": "cmp-agent-factory", "to": "cmp-github-token", "label": "resolve token"},
+        {"from": "cmp-agent-factory", "to": "cmp-sandbox-state", "label": "ensure sandbox"},
+        {"from": "cmp-agent-factory", "to": "cmp-model", "label": "make_model"},
+        {"from": "cmp-agent-factory", "to": "cmp-agent-middleware", "label": "wire middleware"},
+        {"from": "cmp-agent-factory", "to": "cmp-agent-tools", "label": "wire tools"},
+        {"from": "cmp-agent-middleware", "to": "cmp-checkpoint", "label": "run start snapshot"},
+        {"from": "cmp-agent-tools", "to": "cmp-sandbox-state", "label": "execute in sandbox"},
+        {"from": "cmp-reviewer", "to": "cmp-sandbox-state", "label": "allow_replacement reviewer"},
+        {"from": "cmp-analyzer", "to": "cmp-reviewer", "label": "style appendix consumed"},
+        {"from": "cmp-runtime", "to": "cmp-reviewer", "label": "reviewer graph"},
+        {"from": "cmp-runtime", "to": "cmp-analyzer", "label": "analyzer graph"}
+      ]
+    }
+  ]
+}
