@@ -1,0 +1,40 @@
+{
+  "title": "LangGraph SDK 命令与 SSE 事件协议",
+  "participants": [
+    {"id": "ui", "label": "Agents UI / PromptBar"},
+    {"id": "provider", "label": "@langchain/react StreamProvider"},
+    {"id": "transport", "label": "ProtocolSseTransportAdapter"},
+    {"id": "routes", "label": "FastAPI routes.py"},
+    {"id": "proxy", "label": "thread_api.py proxy"},
+    {"id": "runtime", "label": "LangGraph Runtime"},
+    {"id": "agent", "label": "Agent graph + middleware"},
+    {"id": "store", "label": "Thread / checkpoint store"}
+  ],
+  "messages": [
+    {"from": "ui", "to": "provider", "label": "stream.submit({ messages: [human] }, { config })"},
+    {"from": "provider", "to": "transport", "label": "run.start(command) + assistant_id=agent"},
+    {"from": "transport", "to": "routes", "label": "POST /dashboard/api/threads/:id/commands"},
+    {"from": "routes", "to": "proxy", "label": "session cookie + JSON body"},
+    {"from": "proxy", "to": "store", "label": "threads.get(id); create/stamp on first run.start"},
+    {"from": "proxy", "to": "proxy", "label": "enrich model, effort, repo, github_login, stream modes", "activate": false},
+    {"from": "proxy", "to": "runtime", "label": "POST /threads/:id/commands (enriched run.start)"},
+    {"from": "runtime", "to": "transport", "label": "success { run_id }", "return": true},
+    {"from": "proxy", "to": "store", "label": "metadata.latest_run_id = run_id", "async": true},
+    {"from": "provider", "to": "transport", "label": "openEventStream({ channels: root pump })"},
+    {"from": "transport", "to": "routes", "label": "POST /threads/:id/stream/events"},
+    {"from": "routes", "to": "proxy", "label": "readable-thread preflight"},
+    {"from": "proxy", "to": "runtime", "label": "Accept: text/event-stream; body.channels"},
+    {"from": "runtime", "to": "agent", "label": "execute graph / middleware / tools"},
+    {"from": "agent", "to": "runtime", "label": "values, updates, messages, tools, lifecycle", "return": true},
+    {"from": "runtime", "to": "proxy", "label": "SSE event frames + seq", "return": true},
+    {"from": "proxy", "to": "transport", "label": "transparent SSE bytes", "return": true},
+    {"from": "transport", "to": "provider", "label": "decode event; reconnect with since=last seq", "return": true},
+    {"from": "provider", "to": "provider", "label": "values -> state; messages -> transcript; tools -> toolCalls; lifecycle -> isLoading", "activate": false},
+    {"from": "provider", "to": "ui", "label": "stream.messages / toolCalls / subagents / isLoading", "return": true},
+    {"from": "ui", "to": "routes", "label": "POST /threads/:id/messages when stream.isLoading"},
+    {"from": "routes", "to": "proxy", "label": "owner check + image/model validation"},
+    {"from": "proxy", "to": "store", "label": "queue_message_for_thread(FIFO)"},
+    {"from": "agent", "to": "store", "label": "check_message_queue_before_model: consume queued input"},
+    {"from": "store", "to": "agent", "label": "inject as user message before next model call", "return": true}
+  ]
+}

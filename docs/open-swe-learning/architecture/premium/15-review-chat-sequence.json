@@ -1,0 +1,29 @@
+{
+  "title": "PR 问答：命令触发、上下文注入与 SSE 回传",
+  "participants": [
+    {"id": "user", "label": "用户 / ReviewChat", "actor": true},
+    {"id": "api", "label": "FastAPI routes.py"},
+    {"id": "proxy", "label": "review_chat_api.py"},
+    {"id": "github", "label": "GitHub API"},
+    {"id": "runtime", "label": "LangGraph Runtime"},
+    {"id": "chat", "label": "traced_chat_agent"},
+    {"id": "store", "label": "Thread / checkpoint"}
+  ],
+  "messages": [
+    {"from": "user", "to": "api", "label": "1. POST .../chat/threads/:id/commands (run.start)"},
+    {"from": "api", "to": "proxy", "label": "2. 先检查登录用户是否可访问该仓库"},
+    {"from": "proxy", "to": "store", "label": "3. 检查线程归属；首次消息时创建私有 chat thread"},
+    {"from": "proxy", "to": "github", "label": "4. 首次或 PR head 变化时读取 PR、diff、findings"},
+    {"from": "github", "to": "proxy", "label": "PR 概要 + diff.patch + findings", "return": true},
+    {"from": "proxy", "to": "runtime", "label": "5. 扩展 run.start：assistant_id=chat、files、可信 configurable"},
+    {"from": "runtime", "to": "chat", "label": "6. langgraph.json -> traced_chat_agent -> get_chat_agent(config)"},
+    {"from": "chat", "to": "github", "label": "需要更多证据时：只读 read_repo_file / search_repo_code"},
+    {"from": "github", "to": "chat", "label": "目标提交的源码或搜索结果", "return": true},
+    {"from": "chat", "to": "store", "label": "7. 保存消息与运行状态；生成回答", "async": true},
+    {"note": "从这里开始是观察面：不是再次启动模型", "over": "runtime"},
+    {"from": "user", "to": "api", "label": "8. POST .../chat/threads/:id/stream/events"},
+    {"from": "api", "to": "proxy", "label": "再次验证线程归属后转发 SSE 请求"},
+    {"from": "proxy", "to": "runtime", "label": "订阅 messages / values / updates / lifecycle"},
+    {"from": "runtime", "to": "user", "label": "9. SSE：返回模型消息、工具状态和完成事件", "return": true}
+  ]
+}

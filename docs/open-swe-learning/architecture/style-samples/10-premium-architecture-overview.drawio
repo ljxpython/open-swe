@@ -1,0 +1,124 @@
+<mxfile host="app.diagrams.net" version="31.1.5">
+  <diagram id="premium-architecture" name="Open SWE Architecture">
+    <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1200" math="0" shadow="0" background="#0B1020">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Open SWE | Runtime Architecture" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=28;fontStyle=1;fontColor=#F8FAFC;" vertex="1" parent="1">
+          <mxGeometry x="50" y="30" width="740" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="Command plane, execution plane, state plane, and trust boundary" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=14;fontColor=#94A3B8;" vertex="1" parent="1">
+          <mxGeometry x="50" y="75" width="900" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="体验与触发" style="swimlane;horizontal=1;startSize=42;rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#101A31;strokeColor=#243653;fontColor=#A5D8FF;fontFamily=Helvetica;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="150" width="350" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="控制平面" style="swimlane;horizontal=1;startSize=42;rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#101A31;strokeColor=#243653;fontColor=#C4B5FD;fontFamily=Helvetica;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="150" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="执行与状态平面" style="swimlane;horizontal=1;startSize=42;rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#101A31;strokeColor=#243653;fontColor=#7DD3FC;fontFamily=Helvetica;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="830" y="150" width="660" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="信任边界与外部系统" style="swimlane;horizontal=1;startSize=42;rounded=1;arcSize=8;html=1;whiteSpace=wrap;fillColor=#101A31;strokeColor=#243653;fontColor=#FCD34D;fontFamily=Helvetica;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="150" width="350" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="Dashboard UI&#xa;React + StreamProvider&#xa;commands / SSE" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#E0F2FE;fillColor=#0C4A6E;strokeColor=#38BDF8;strokeWidth=2;shadow=1;" vertex="1" parent="4">
+          <mxGeometry x="30" y="80" width="290" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="Desktop / Webhook&#xa;Electron, GitHub, Slack, Linear&#xa;human request and event entry" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#E0F2FE;fillColor=#0F3654;strokeColor=#38BDF8;strokeWidth=2;shadow=1;" vertex="1" parent="4">
+          <mxGeometry x="30" y="250" width="290" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="Dashboard API&#xa;FastAPI routes&#xa;session, same-origin, webhook verify" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#F3E8FF;fillColor=#3B1F5E;strokeColor=#C084FC;strokeWidth=2;shadow=1;" vertex="1" parent="5">
+          <mxGeometry x="30" y="80" width="300" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="Command Proxy&#xa;thread_api.py&#xa;authorize, enrich, forward" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#F3E8FF;fillColor=#47246F;strokeColor=#C084FC;strokeWidth=2;shadow=1;" vertex="1" parent="5">
+          <mxGeometry x="30" y="250" width="300" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="LangGraph Runtime&#xa;thread / run / checkpoint&#xa;SDK commands and event stream" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#E0F2FE;fillColor=#0C4A6E;strokeColor=#38BDF8;strokeWidth=2;shadow=1;" vertex="1" parent="6">
+          <mxGeometry x="30" y="80" width="270" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="Agent Factory&#xa;get_agent(config)&#xa;token, profile, model, tools" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#E0F2FE;fillColor=#075985;strokeColor=#22D3EE;strokeWidth=2;shadow=1;" vertex="1" parent="6">
+          <mxGeometry x="350" y="80" width="270" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="Deep Agent Runtime&#xa;model and tool loop&#xa;middleware guards every turn" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#E0F2FE;fillColor=#0E7490;strokeColor=#22D3EE;strokeWidth=2;shadow=1;" vertex="1" parent="6">
+          <mxGeometry x="30" y="280" width="270" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="State Store&#xa;metadata + checkpoints&#xa;sandbox id, run status, turn refs" style="shape=cylinder3;boundedLbl=1;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#D1FAE5;fillColor=#064E3B;strokeColor=#2DD4BF;strokeWidth=2;shadow=1;" vertex="1" parent="6">
+          <mxGeometry x="350" y="270" width="270" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="Sandbox Lifecycle&#xa;thread-isolated workspace&#xa;execute, git, diff, proxy refresh" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#FEF3C7;fillColor=#78350F;strokeColor=#FBBF24;strokeWidth=2;shadow=1;" vertex="1" parent="6">
+          <mxGeometry x="30" y="480" width="270" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="17" value="Model Adapter&#xa;make_model()&#xa;provider, timeout, fallback" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#FCE7F3;fillColor=#831843;strokeColor=#F472B6;strokeWidth=2;shadow=1;" vertex="1" parent="6">
+          <mxGeometry x="350" y="480" width="270" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="18" value="GitHub Platform&#xa;OAuth, App, REST, Git&#xa;repository authority" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#E7E5E4;fillColor=#292524;strokeColor=#A8A29E;strokeWidth=2;shadow=1;" vertex="1" parent="7">
+          <mxGeometry x="30" y="80" width="290" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="19" value="LLM Endpoint&#xa;OpenAI-compatible Chat&#xa;tool decisions and responses" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#FCE7F3;fillColor=#4A1734;strokeColor=#F472B6;strokeWidth=2;shadow=1;" vertex="1" parent="7">
+          <mxGeometry x="30" y="260" width="290" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="Sandbox Provider&#xa;LangSmith / Modal / Local&#xa;isolated compute boundary" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=16;fontFamily=Helvetica;fontSize=14;fontColor=#FEF3C7;fillColor=#5B350D;strokeColor=#FBBF24;strokeWidth=2;shadow=1;" vertex="1" parent="7">
+          <mxGeometry x="30" y="440" width="290" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="HTTPS / commands" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#38BDF8;fontColor=#CBD5E1;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.35;entryX=0;entryY=0.35;" edge="1" parent="1" source="8" target="10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="OAuth / webhook" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#38BDF8;fontColor=#CBD5E1;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.65;entryX=0;entryY=0.65;" edge="1" parent="1" source="9" target="10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="23" value="trusted command" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#C084FC;fontColor=#DDD6FE;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="10" target="11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="24" value="SDK command / SSE" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#C084FC;fontColor=#DDD6FE;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="11" target="12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="25" value="load graph" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#22D3EE;fontColor=#CFFAFE;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="12" target="13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="26" value="compose runtime" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#22D3EE;fontColor=#CFFAFE;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="13" target="14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="27" value="metadata / checkpoint" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#2DD4BF;fontColor=#CCFBF1;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="13" target="15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="28" value="tool execution" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#FBBF24;fontColor=#FEF3C7;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="14" target="16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="29" value="model call" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#F472B6;fontColor=#FCE7F3;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="14" target="17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="30" value="App / OAuth API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#A8A29E;fontColor=#E7E5E4;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="10" target="18">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="805" y="240" /><mxPoint x="805" y="120" /><mxPoint x="1490" y="120" /><mxPoint x="1490" y="250" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="31" value="provider request" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#F472B6;fontColor=#FCE7F3;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="17" target="19">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1490" y="620" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="32" value="isolated compute" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeWidth=2;strokeColor=#FBBF24;fontColor=#FEF3C7;fontFamily=Helvetica;fontSize=12;labelBackgroundColor=#0B1020;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="16" target="20">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1200" y="820" /><mxPoint x="1200" y="890" /><mxPoint x="1510" y="890" /><mxPoint x="1510" y="680" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="33" value="Legend" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;verticalAlign=top;spacingTop=10;spacingLeft=12;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#CBD5E1;fillColor=#111827;strokeColor=#334155;" vertex="1" parent="1">
+          <mxGeometry x="50" y="910" width="1830" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="34" value="&#xa;Experience / entry" style="rounded=1;html=1;align=left;verticalAlign=middle;spacingLeft=34;fontFamily=Helvetica;fontSize=12;fontColor=#CBD5E1;fillColor=#0C4A6E;strokeColor=#38BDF8;" vertex="1" parent="33">
+          <mxGeometry x="20" y="40" width="210" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="35" value="&#xa;Control / authorization" style="rounded=1;html=1;align=left;verticalAlign=middle;spacingLeft=34;fontFamily=Helvetica;fontSize=12;fontColor=#DDD6FE;fillColor=#3B1F5E;strokeColor=#C084FC;" vertex="1" parent="33">
+          <mxGeometry x="270" y="40" width="230" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="36" value="&#xa;State / persistence" style="rounded=1;html=1;align=left;verticalAlign=middle;spacingLeft=34;fontFamily=Helvetica;fontSize=12;fontColor=#CCFBF1;fillColor=#064E3B;strokeColor=#2DD4BF;" vertex="1" parent="33">
+          <mxGeometry x="540" y="40" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="37" value="&#xa;Sandbox / execution" style="rounded=1;html=1;align=left;verticalAlign=middle;spacingLeft=34;fontFamily=Helvetica;fontSize=12;fontColor=#FEF3C7;fillColor=#78350F;strokeColor=#FBBF24;" vertex="1" parent="33">
+          <mxGeometry x="800" y="40" width="230" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="38" value="&#xa;Model provider" style="rounded=1;html=1;align=left;verticalAlign=middle;spacingLeft=34;fontFamily=Helvetica;fontSize=12;fontColor=#FCE7F3;fillColor=#831843;strokeColor=#F472B6;" vertex="1" parent="33">
+          <mxGeometry x="1070" y="40" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="39" value="&#xa;External trust boundary" style="rounded=1;html=1;align=left;verticalAlign=middle;spacingLeft=34;fontFamily=Helvetica;fontSize=12;fontColor=#E7E5E4;fillColor=#292524;strokeColor=#A8A29E;" vertex="1" parent="33">
+          <mxGeometry x="1310" y="40" width="260" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

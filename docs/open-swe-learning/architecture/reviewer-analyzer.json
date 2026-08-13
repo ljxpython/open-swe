@@ -1,0 +1,29 @@
+{
+  "title": "Reviewer Analyzer 与主 Agent",
+  "levels": [
+    {
+      "name": "审查子系统",
+      "elements": [
+        {"id": "ra-github", "type": "external", "label": "GitHub PR", "tech": "Diff / Reviews / Checks", "desc": "审查输入、历史样本和发布目标"},
+        {"id": "ra-main", "type": "container", "label": "Main Agent", "tech": "agent.server:get_agent", "desc": "可修改代码、提交、推送、开 PR 的编码 Agent"},
+        {"id": "ra-reviewer", "type": "container", "label": "Reviewer", "tech": "agent.reviewer:get_reviewer_agent", "desc": "只读仓库与 diff，维护单一 evolving findings，最后 publish_review"},
+        {"id": "ra-analyzer", "type": "container", "label": "Analyzer", "tech": "agent.analyzer:get_analyzer", "desc": "bootstrap 或 continual 模式生成仓库审查风格 prompt"},
+        {"id": "ra-style", "type": "database", "label": "Review Style Store", "tech": "save_review_style_prompt", "desc": "按仓库保存 style appendix，供 Reviewer 运行时读取"},
+        {"id": "ra-outcomes", "type": "database", "label": "Finding Outcomes", "tech": "read_finding_outcomes", "desc": "记录 finding 被接受、关闭或忽略的结果，用于 continual 学习"},
+        {"id": "ra-sandbox", "type": "container", "label": "Review Sandbox", "tech": "allow_replacement=True", "desc": "每次重新 checkout prepare_review_repo，不保存用户未提交工作"}
+      ],
+      "relations": [
+        {"from": "ra-github", "to": "ra-main", "label": "PR comment / CI feedback"},
+        {"from": "ra-github", "to": "ra-reviewer", "label": "opened / ready_for_review / diff"},
+        {"from": "ra-github", "to": "ra-analyzer", "label": "历史 PR reviews"},
+        {"from": "ra-main", "to": "ra-github", "label": "commit / push / open PR"},
+        {"from": "ra-reviewer", "to": "ra-sandbox", "label": "prepare_review_repo"},
+        {"from": "ra-reviewer", "to": "ra-github", "label": "publish_review findings"},
+        {"from": "ra-analyzer", "to": "ra-style", "label": "save_review_style_prompt"},
+        {"from": "ra-reviewer", "to": "ra-style", "label": "读取 style appendix"},
+        {"from": "ra-reviewer", "to": "ra-outcomes", "label": "finding outcome"},
+        {"from": "ra-analyzer", "to": "ra-outcomes", "label": "continual read outcomes"}
+      ]
+    }
+  ]
+}

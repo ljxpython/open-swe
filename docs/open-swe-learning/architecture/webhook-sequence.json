@@ -1,0 +1,25 @@
+{
+  "title": "GitHub / Slack / Linear Webhook 到 Agent",
+  "participants": [
+    {"id": "source", "label": "GitHub / Slack / Linear", "actor": true},
+    {"id": "webapp", "label": "agent.webapp\nFastAPI"},
+    {"id": "verify", "label": "签名验证 +\nthread_id 推导"},
+    {"id": "proxy", "label": "Dashboard / dispatch\ncommand path"},
+    {"id": "runtime", "label": "LangGraph\nRuntime"},
+    {"id": "agent", "label": "Main / Reviewer\nGraph"},
+    {"id": "channel", "label": "源渠道回复\nSlack/Linear/GitHub"}
+  ],
+  "messages": [
+    {"from": "source", "to": "webapp", "label": "POST webhook\n事件 payload"},
+    {"from": "webapp", "to": "verify", "label": "读取 headers + body"},
+    {"from": "verify", "to": "verify", "label": "verify_github_signature()\n或 Slack/Linear 校验"},
+    {"from": "verify", "to": "verify", "label": "get_thread_id_from_branch()\n或渠道等价函数"},
+    {"from": "verify", "to": "proxy", "label": "确定性 thread_id + user context"},
+    {"from": "proxy", "to": "runtime", "label": "启动/追加 run\n同一 thread 复用"},
+    {"from": "runtime", "to": "agent", "label": "加载 traced_agent 或 reviewer"},
+    {"from": "agent", "to": "agent", "label": "middleware + tools + model loop"},
+    {"from": "agent", "to": "channel", "label": "slack_thread_reply / linear_comment / GitHub comment", "async": true},
+    {"from": "runtime", "to": "webapp", "label": "run status / events", "async": true},
+    {"from": "webapp", "to": "source", "label": "HTTP 2xx 快速确认", "return": true}
+  ]
+}

@@ -1,0 +1,256 @@
+<mxfile>
+  <diagram id="page" name="系统上下文">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" background="#1e1e1e">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ctx-user" value="开发者&#10;[Person: Browser / Electron]&#10;通过 Dashboard、Desktop、Slack、Linear 或 GitHub 触发编码任务" style="shape=mxgraph.c4.person2;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="20" y="0" width="200" height="180" as="geometry" />
+        </mxCell>
+        <UserObject label="Open SWE&#10;[Software System: LangGraph + Deep Agents]&#10;为每个 thread 创建隔离沙箱，运行编码、审查和分析 Agent" link="data:page/id,page" id="ctx-openswe">
+          <mxCell style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="220" width="240" height="120" as="geometry" />
+        </mxCell>
+        </UserObject>
+        <mxCell id="ctx-github" value="GitHub&#10;[Software System: OAuth / App / Webhooks]&#10;身份认证、仓库 API、Git 流量和 PR 事件来源" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#383838;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="0" y="220" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ctx-chat" value="Slack / Linear&#10;[Software System: Webhooks / Tokens]&#10;外部消息入口和 Agent 回复出口" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#383838;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="0" y="370" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ctx-langgraph" value="LangGraph Runtime&#10;[Software System: LangGraph Server + SDK]&#10;Thread、Run、Checkpoint、SSE 事件和图执行宿主" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#383838;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="610" y="140" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ctx-model" value="模型提供商&#10;[Software System: OpenAI-compatible HTTPS Chat]&#10;模型调用、推理内容和工具调用决策" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#383838;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="610" y="290" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ctx-sandbox" value="Sandbox Provider&#10;[Software System: LangSmith / Modal / Daytona / Local]&#10;执行 shell、读写文件、Git 操作和测试的隔离工作区" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#383838;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="610" y="450" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" value="提交任务 / 查看流式结果" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="ctx-user" target="ctx-openswe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="310" y="160" /><mxPoint x="420" y="160" /><mxPoint x="420" y="160" /><mxPoint x="420" y="160" /><mxPoint x="420" y="200" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="OAuth、App token、PR webhook" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="ctx-github" target="ctx-openswe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="280" /><mxPoint x="290" y="280" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="Slack/Linear 消息与回复" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="ctx-chat" target="ctx-openswe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="310" y="390" /><mxPoint x="380" y="390" /><mxPoint x="380" y="390" /><mxPoint x="380" y="390" /><mxPoint x="380" y="350" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="创建 thread、启动 run、消费 SSE" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="ctx-openswe" target="ctx-langgraph">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="240" /><mxPoint x="600" y="240" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="图状态、checkpoint、事件流" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="ctx-langgraph" target="ctx-openswe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="610" y="230" /><mxPoint x="560" y="230" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="模型请求 / tool call" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="ctx-openswe" target="ctx-model">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="320" /><mxPoint x="600" y="320" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="创建、复用、刷新隔离沙箱" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="ctx-openswe" target="ctx-sandbox">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="460" y="390" /><mxPoint x="460" y="470" /><mxPoint x="460" y="470" /><mxPoint x="460" y="470" /><mxPoint x="600" y="470" /></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page" name="容器视图">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" background="#1e1e1e">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="Dashboard UI&#10;[Container: React + Vite + @langchain/react]&#10;Agents 聊天、线程列表、审查和配置页面；通过 commands 与 SSE 工作" link="data:page/id,page" id="con-ui">
+          <mxCell style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="0" y="290" width="240" height="120" as="geometry" />
+        </mxCell>
+        </UserObject>
+        <mxCell id="con-desktop" value="Desktop Client&#10;[Container: Electron + ACP]&#10;桌面端登录、浏览器 OAuth、ACP 事件桥接和本地窗口" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="0" y="450" width="240" height="120" as="geometry" />
+        </mxCell>
+        <UserObject label="FastAPI Web App&#10;[Container: agent.webapp:app]&#10;挂载 Dashboard 路由，接收 GitHub/Slack/Linear webhook，并代理 LangGraph 命令" link="data:page/id,page" id="con-fastapi">
+          <mxCell style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="370" width="240" height="120" as="geometry" />
+        </mxCell>
+        </UserObject>
+        <mxCell id="con-runtime" value="LangGraph Runtime&#10;[Container: langgraph.json + langgraph dev]&#10;加载图入口、管理 thread/run/checkpoint，并提供 SDK API 与 SSE" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="610" y="230" width="240" height="120" as="geometry" />
+        </mxCell>
+        <UserObject label="Main Agent Graph&#10;[Container: agent.server:get_agent + create_deep_agent]&#10;按 thread 构造有状态执行图、工具集和 middleware stack" link="data:page/id,page" id="con-agent">
+          <mxCell style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="920" y="0" width="240" height="120" as="geometry" />
+        </mxCell>
+        </UserObject>
+        <mxCell id="con-reviewer" value="Reviewer Graph&#10;[Container: agent.reviewer:get_reviewer_agent]&#10;只读 PR 审查图，维护 findings 并发布 review" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="920" y="160" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="con-analyzer" value="Analyzer Graph&#10;[Container: agent.analyzer:get_analyzer]&#10;从历史 PR 与 finding outcome 学习仓库审查风格" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="920" y="310" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="con-store" value="Thread / Profile / OAuth Store&#10;[Container: LangGraph state + dashboard persistence]&#10;保存 thread metadata、用户配置、加密 OAuth token、计划和 webhook 关联" style="shape=cylinder3;size=15;boundedLbl=1;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="310" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="con-sandbox" value="Sandbox Lifecycle&#10;[Container: agent.utils.sandbox_state]&#10;按 thread 缓存/重连 sandbox，保护未提交工作，刷新 GitHub proxy" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="160" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="con-github" value="GitHub Platform&#10;[Software System: OAuth / GitHub App / REST / Git]&#10;被 Dashboard 和 sandbox proxy 双重使用" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#383838;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="290" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="con-model" value="LLM Endpoint&#10;[Software System: OPENAI_BASE_URL / Chat API]&#10;由 agent.utils.model.make_model 构造客户端" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#383838;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="0" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" value="HTTPS: /dashboard/api" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-ui" target="con-fastapi">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="390" /><mxPoint x="290" y="390" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="OAuth / ACP bridge" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-desktop" target="con-fastapi">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="470" /><mxPoint x="290" y="470" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="langgraph_sdk Client" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-fastapi" target="con-runtime">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="420" y="350" /><mxPoint x="420" y="320" /><mxPoint x="420" y="320" /><mxPoint x="420" y="320" /><mxPoint x="600" y="320" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="加载 agent graph" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-runtime" target="con-agent">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="730" y="160" /><mxPoint x="730" y="60" /><mxPoint x="730" y="60" /><mxPoint x="730" y="60" /><mxPoint x="900" y="60" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="加载 reviewer graph" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-runtime" target="con-reviewer">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="850" y="260" /><mxPoint x="900" y="260" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="加载 analyzer graph" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-runtime" target="con-analyzer">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="850" y="330" /><mxPoint x="900" y="330" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="checkpoint / thread metadata" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-agent" target="con-store">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1180" y="100" /><mxPoint x="1190" y="100" /><mxPoint x="1190" y="100" /><mxPoint x="1190" y="100" /><mxPoint x="1190" y="340" /><mxPoint x="1190" y="340" /><mxPoint x="1190" y="340" /><mxPoint x="1210" y="340" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="review findings / style" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-reviewer" target="con-store">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1170" y="250" /><mxPoint x="1180" y="250" /><mxPoint x="1180" y="250" /><mxPoint x="1180" y="250" /><mxPoint x="1180" y="370" /><mxPoint x="1180" y="370" /><mxPoint x="1180" y="370" /><mxPoint x="1210" y="370" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="style prompt / outcomes" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-analyzer" target="con-store">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1160" y="400" /><mxPoint x="1210" y="400" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e9" value="ensure_sandbox_for_thread" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-agent" target="con-sandbox">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1180" y="50" /><mxPoint x="1210" y="50" /><mxPoint x="1210" y="50" /><mxPoint x="1210" y="50" /><mxPoint x="1210" y="180" /><mxPoint x="1210" y="180" /><mxPoint x="1210" y="180" /><mxPoint x="1210" y="180" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="review checkout sandbox" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-reviewer" target="con-sandbox">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1160" y="230" /><mxPoint x="1210" y="230" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e11" value="model call" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-agent" target="con-model">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1160" y="20" /><mxPoint x="1210" y="20" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e12" value="model call" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-reviewer" target="con-model">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1160" y="200" /><mxPoint x="1170" y="200" /><mxPoint x="1170" y="200" /><mxPoint x="1170" y="200" /><mxPoint x="1170" y="70" /><mxPoint x="1170" y="70" /><mxPoint x="1170" y="70" /><mxPoint x="1210" y="70" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e13" value="OAuth / webhook / API" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-fastapi" target="con-github">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="850" y="460" /><mxPoint x="1640" y="460" /><mxPoint x="1640" y="460" /><mxPoint x="1640" y="460" /><mxPoint x="1640" y="420" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e14" value="proxy: git + api.github.com" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="con-sandbox" target="con-github">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1340" y="290" /><mxPoint x="1340" y="300" /><mxPoint x="1340" y="300" /><mxPoint x="1340" y="300" /><mxPoint x="1510" y="300" /></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page" name="组件视图">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" background="#1e1e1e">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cmp-ui-stream" value="AgentThreadStreamProvider&#10;[Component: ui/src/features/agents/lib/AgentThreadStreamProvider.tsx]&#10;为当前 thread 建立 LangGraph StreamProvider，消费 SSE 事件" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="350" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-ui-submit" value="useSubmitAgentMessage&#10;[Component: ui/src/features/agents/lib/provider/useSubmitAgentMessage.ts]&#10;空闲时提交 run.start，运行中提交消息队列命令" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="510" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-ui-home" value="AgentsHome / AgentThreadView&#10;[Component: React routes and components]&#10;线程选择、消息渲染、工具活动和 composer" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="0" y="510" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-api-routes" value="Dashboard routes&#10;[Component: agent/dashboard/routes.py]&#10;认证、线程 API、配置、审查和 stream endpoint" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="660" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-api-proxy" value="Thread command proxy&#10;[Component: agent/dashboard/thread_api.py]&#10;鉴权、线程创建、run.start 入参重建、LangGraph 转发" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="610" y="580" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-api-webhook" value="Webhook adapters&#10;[Component: agent.webapp.py + utils/{github,slack,linear}.py]&#10;验证签名、推导 deterministic thread_id、启动图运行" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="820" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-agent-factory" value="get_agent&#10;[Component: agent/server.py:get_agent]&#10;解析 token、sandbox、profile、model，构造 create_deep_agent" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="370" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-agent-middleware" value="Middleware stack&#10;[Component: agent/server.py + agent/middleware]&#10;输入清洗、限步、错误处理、消息队列、超时、熔断和完成保护" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="0" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-agent-tools" value="Curated tools&#10;[Component: agent/tools/__init__.py]&#10;GitHub、Slack、Linear、HTTP、计划和 PR 工具" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="160" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-model" value="Model factory&#10;[Component: agent/utils/model.py:make_model]&#10;按 provider/model/effort 生成 ChatModel、timeout 和 fallback 参数" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="310" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-sandbox-state" value="Sandbox state&#10;[Component: agent/utils/sandbox_state.py]&#10;SANDBOX_BACKENDS、重连策略、不可达保护和 thread metadata" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1830" y="430" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-github-token" value="GitHub token resolution&#10;[Component: agent/utils/auth.py + github_app.py]&#10;用户 OAuth token 优先，否则使用 App installation token" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="540" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-checkpoint" value="Turn checkpoint&#10;[Component: utils/turn_checkpoint.py]&#10;运行开始快照 refs/open-swe/turns/*，供 turn-diff 查询" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1830" y="0" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-reviewer" value="Reviewer tool loop&#10;[Component: agent/reviewer.py]&#10;prepare_review_repo、findings 演化和 publish_review" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="700" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-analyzer" value="Review style analyzer&#10;[Component: agent/analyzer.py + dashboard/review_style_jobs.py]&#10;bootstrap/continual 两种模式保存仓库风格 prompt" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="700" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-runtime" value="Graph entrypoint loader&#10;[Component: langgraph.json + agent/graphs/*]&#10;traced_agent、traced_reviewer_agent、traced_analyzer、chat、scheduler" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;align=center;fontFamily=Helvetica;fontColor=#f0f0f0;fillColor=#004870;strokeColor=#33b6ff;" vertex="1" parent="1">
+          <mxGeometry x="920" y="580" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" value="用户发送消息" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-ui-home" target="cmp-ui-submit">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="570" /><mxPoint x="290" y="570" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="POST commands" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-ui-submit" target="cmp-api-proxy">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="600" /><mxPoint x="600" y="600" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="SSE stream/events" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-ui-stream" target="cmp-api-proxy">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="630" y="420" /><mxPoint x="730" y="420" /><mxPoint x="730" y="420" /><mxPoint x="730" y="420" /><mxPoint x="730" y="570" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="dispatch" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-api-routes" target="cmp-api-proxy">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="680" /><mxPoint x="600" y="680" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="same command path" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-api-webhook" target="cmp-api-proxy">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="630" y="880" /><mxPoint x="730" y="880" /><mxPoint x="730" y="880" /><mxPoint x="730" y="880" /><mxPoint x="730" y="710" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="SDK invoke / stream" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-api-proxy" target="cmp-runtime">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="850" y="640" /><mxPoint x="900" y="640" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="load graph" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-runtime" target="cmp-agent-factory">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1040" y="540" /><mxPoint x="1040" y="480" /><mxPoint x="1040" y="480" /><mxPoint x="1040" y="480" /><mxPoint x="1210" y="480" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="resolve token" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-agent-factory" target="cmp-github-token">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1300" y="530" /><mxPoint x="1300" y="560" /><mxPoint x="1300" y="560" /><mxPoint x="1300" y="560" /><mxPoint x="1510" y="560" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="ensure sandbox" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-agent-factory" target="cmp-sandbox-state">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1460" y="460" /><mxPoint x="1820" y="460" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e9" value="make_model" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-agent-factory" target="cmp-model">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1460" y="400" /><mxPoint x="1510" y="400" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="wire middleware" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-agent-factory" target="cmp-agent-middleware">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1300" y="260" /><mxPoint x="1300" y="60" /><mxPoint x="1300" y="60" /><mxPoint x="1300" y="60" /><mxPoint x="1510" y="60" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e11" value="wire tools" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-agent-factory" target="cmp-agent-tools">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1380" y="310" /><mxPoint x="1380" y="220" /><mxPoint x="1380" y="220" /><mxPoint x="1380" y="220" /><mxPoint x="1510" y="220" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e12" value="run start snapshot" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-agent-middleware" target="cmp-checkpoint">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1770" y="60" /><mxPoint x="1820" y="60" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e13" value="execute in sandbox" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-agent-tools" target="cmp-sandbox-state">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1850" y="220" /><mxPoint x="1950" y="220" /><mxPoint x="1950" y="220" /><mxPoint x="1950" y="220" /><mxPoint x="1950" y="420" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e14" value="allow_replacement reviewer" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-reviewer" target="cmp-sandbox-state">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1850" y="760" /><mxPoint x="1950" y="760" /><mxPoint x="1950" y="760" /><mxPoint x="1950" y="760" /><mxPoint x="1950" y="560" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e15" value="style appendix consumed" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-analyzer" target="cmp-reviewer">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1460" y="760" /><mxPoint x="1510" y="760" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e16" value="reviewer graph" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-runtime" target="cmp-reviewer">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1330" y="670" /><mxPoint x="1640" y="670" /><mxPoint x="1640" y="670" /><mxPoint x="1640" y="670" /><mxPoint x="1640" y="690" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e17" value="analyzer graph" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;rounded=0;strokeColor=#bbbbbb;fontColor=#bbbbbb;labelBackgroundColor=none;" edge="1" parent="1" source="cmp-runtime" target="cmp-analyzer">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1250" y="690" /><mxPoint x="1380" y="690" /><mxPoint x="1380" y="690" /><mxPoint x="1380" y="690" /><mxPoint x="1380" y="690" /></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

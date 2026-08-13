@@ -1,0 +1,30 @@
+{
+  "title": "Thread Run Checkpoint Sandbox 生命周期",
+  "participants": [
+    {"id": "trigger", "label": "UI / Webhook", "actor": true},
+    {"id": "runtime", "label": "LangGraph\nThread/Run"},
+    {"id": "metadata", "label": "Thread metadata\nstore"},
+    {"id": "prepare", "label": "PrepareAgentRun\nMiddleware"},
+    {"id": "checkpoint", "label": "LangGraph\nCheckpoint"},
+    {"id": "refs", "label": "Git refs\nopen-swe/turns/*"},
+    {"id": "state", "label": "sandbox_state.py\nSANDBOX_BACKENDS"},
+    {"id": "provider", "label": "Sandbox Provider", "actor": false}
+  ],
+  "messages": [
+    {"from": "trigger", "to": "runtime", "label": "创建或复用 thread_id"},
+    {"from": "runtime", "to": "metadata", "label": "读取 sandbox_id / latest_run_id / refs"},
+    {"from": "runtime", "to": "prepare", "label": "run 开始，进入 PrepareAgentRunMiddleware"},
+    {"from": "prepare", "to": "state", "label": "ensure_sandbox_for_thread(thread_id)"},
+    {"from": "state", "to": "provider", "label": "内存命中则 ping；否则 reconnect/create"},
+    {"from": "provider", "to": "state", "label": "sandbox backend proxy", "return": true},
+    {"from": "state", "to": "metadata", "label": "持久化 sandbox_id", "async": true},
+    {"from": "prepare", "to": "refs", "label": "snapshot refs/open-swe/turns/{user_message_id}"},
+    {"from": "prepare", "to": "checkpoint", "label": "写入 run 起点 checkpoint"},
+    {"from": "runtime", "to": "checkpoint", "label": "每个 graph step 持续 checkpoint", "async": true},
+    {"from": "runtime", "to": "metadata", "label": "更新 latest_run_id / status", "async": true},
+    {"from": "trigger", "to": "runtime", "label": "GET turn-diff(thread_id, message_id)"},
+    {"from": "runtime", "to": "refs", "label": "git diff 起点 ref 与当前 worktree"},
+    {"from": "refs", "to": "trigger", "label": "changed files / diff 结果", "return": true},
+    {"from": "state", "to": "trigger", "label": "sandbox 不可达则通知并停止替换", "async": true}
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../../.codex/skills/local/drawio-skill/styles/schema.json",
+  "name": "premium-enterprise",
+  "version": 1,
+  "default": false,
+  "source": { "type": "project", "path": "docs/open-swe-learning/architecture/style-samples/premium-enterprise.json" },
+  "confidence": "high",
+  "palette": {
+    "primary": { "fillColor": "#E7F2FF", "strokeColor": "#75B4EE" },
+    "success": { "fillColor": "#E8F7EC", "strokeColor": "#6DBA84" },
+    "warning": { "fillColor": "#FFF8E7", "strokeColor": "#F1C76B" },
+    "accent": { "fillColor": "#E3F7F3", "strokeColor": "#57BFB0" },
+    "danger": { "fillColor": "#FDECEC", "strokeColor": "#DC7A7A" },
+    "neutral": { "fillColor": "#F6F9FD", "strokeColor": "#D7E2F0" },
+    "secondary": { "fillColor": "#F0EAFF", "strokeColor": "#9B7DD7" }
+  },
+  "roles": {
+    "service": "primary",
+    "database": "success",
+    "queue": "warning",
+    "gateway": "accent",
+    "error": "danger",
+    "external": "neutral",
+    "security": "secondary"
+  },
+  "shapes": {
+    "service": "rounded=1",
+    "database": "shape=cylinder3",
+    "queue": "rounded=1",
+    "decision": "rhombus",
+    "external": "rounded=1;dashed=1",
+    "container": "swimlane;startSize=34"
+  },
+  "font": {
+    "fontFamily": "Arial",
+    "fontSize": 12,
+    "titleFontSize": 18,
+    "titleBold": true
+  },
+  "edges": {
+    "style": "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1",
+    "arrow": "endArrow=blockThin;endFill=1",
+    "dashedFor": ["optional", "async", "SSE", "stream"]
+  },
+  "extras": {
+    "background": "#F7F9FC",
+    "edgeColor": "#6B7C93",
+    "fontColor": "#172B4D",
+    "globalStrokeWidth": 1.2,
+    "sketch": false
+  }
+}

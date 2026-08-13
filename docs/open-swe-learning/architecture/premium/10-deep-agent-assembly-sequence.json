@@ -1,0 +1,37 @@
+{
+  "title": "Deep Agent 装配与一次模型工具循环",
+  "participants": [
+    {"id": "run", "label": "LangGraph Run"},
+    {"id": "factory", "label": "server.py:get_agent"},
+    {"id": "sandbox", "label": "Sandbox + Backend"},
+    {"id": "settings", "label": "Team / Profile / Thread"},
+    {"id": "model", "label": "Primary + Subagent Models"},
+    {"id": "tools", "label": "Curated + Dynamic Tools"},
+    {"id": "prompt", "label": "PrepareRun + Prompt"},
+    {"id": "deep", "label": "create_deep_agent"},
+    {"id": "llm", "label": "Model / WawAPI"},
+    {"id": "ui", "label": "Dashboard / Source Channel"}
+  ],
+  "messages": [
+    {"from": "run", "to": "factory", "label": "get_agent(config)"},
+    {"from": "factory", "to": "settings", "label": "resolve team defaults + profile"},
+    {"from": "settings", "to": "factory", "label": "primary/subagent model pair", "return": true},
+    {"from": "factory", "to": "sandbox", "label": "cached backend proxy; reconnect if needed"},
+    {"from": "sandbox", "to": "factory", "label": "backend + work directory", "return": true},
+    {"from": "factory", "to": "model", "label": "make_model(primary) + make_model(subagent)"},
+    {"from": "model", "to": "factory", "label": "BaseChatModel instances", "return": true},
+    {"from": "factory", "to": "tools", "label": "static tools + gated integrations"},
+    {"from": "tools", "to": "factory", "label": "tool groups / DynamicToolMiddleware", "return": true},
+    {"from": "factory", "to": "deep", "label": "model, tools, subagents, skills, backend, middleware"},
+    {"from": "deep", "to": "factory", "label": "compiled Pregel graph", "return": true},
+    {"from": "factory", "to": "run", "label": "agent.with_config(config)", "return": true},
+    {"from": "run", "to": "prompt", "label": "before-agent: prepare sandbox, prompt, checkpoint"},
+    {"from": "prompt", "to": "run", "label": "rendered_system_prompt in state", "return": true},
+    {"from": "run", "to": "llm", "label": "SystemMessage + conversation"},
+    {"from": "llm", "to": "run", "label": "AIMessage / tool call", "return": true},
+    {"from": "run", "to": "tools", "label": "execute built-in or curated tool"},
+    {"from": "tools", "to": "run", "label": "ToolMessage result", "return": true},
+    {"from": "run", "to": "llm", "label": "next model call", "async": true},
+    {"from": "run", "to": "ui", "label": "SSE / channel reply", "return": true}
+  ]
+}

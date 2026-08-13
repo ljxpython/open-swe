@@ -1,0 +1,311 @@
+{
+  "direction": "LR",
+  "nodes": [
+    {
+      "id": "dashboard.plan_store",
+      "label": "plan_store"
+    },
+    {
+      "id": "dashboard.options",
+      "label": "options"
+    },
+    {
+      "id": "dashboard.repo_snapshots",
+      "label": "repo_snapshots"
+    },
+    {
+      "id": "dashboard.notion_oauth",
+      "label": "notion_oauth"
+    },
+    {
+      "id": "dashboard.review_chat_api",
+      "label": "review_chat_api"
+    },
+    {
+      "id": "dashboard.skills",
+      "label": "skills"
+    },
+    {
+      "id": "dashboard.agent_usage",
+      "label": "agent_usage"
+    },
+    {
+      "id": "dashboard.user_mappings",
+      "label": "user_mappings"
+    },
+    {
+      "id": "dashboard.agent_instructions",
+      "label": "agent_instructions"
+    },
+    {
+      "id": "dashboard.user_credentials",
+      "label": "user_credentials"
+    },
+    {
+      "id": "dashboard.slack_oauth",
+      "label": "slack_oauth"
+    },
+    {
+      "id": "dashboard.eval_jobs",
+      "label": "eval_jobs"
+    },
+    {
+      "id": "dashboard.review_api",
+      "label": "review_api"
+    },
+    {
+      "id": "dashboard.pr_diff",
+      "label": "pr_diff"
+    },
+    {
+      "id": "dashboard.user_instructions",
+      "label": "user_instructions"
+    },
+    {
+      "id": "dashboard",
+      "label": "dashboard"
+    },
+    {
+      "id": "dashboard.plan_api",
+      "label": "plan_api"
+    },
+    {
+      "id": "dashboard.review_style_jobs",
+      "label": "review_style_jobs"
+    },
+    {
+      "id": "dashboard.repo_cache",
+      "label": "repo_cache"
+    },
+    {
+      "id": "dashboard.autofix_state",
+      "label": "autofix_state"
+    },
+    {
+      "id": "dashboard.agent_overrides",
+      "label": "agent_overrides"
+    },
+    {
+      "id": "dashboard.analyzer_cron",
+      "label": "analyzer_cron"
+    },
+    {
+      "id": "dashboard.admin",
+      "label": "admin"
+    },
+    {
+      "id": "dashboard.workflow_approval_api",
+      "label": "workflow_approval_api"
+    },
+    {
+      "id": "dashboard.enabled_repos",
+      "label": "enabled_repos"
+    },
+    {
+      "id": "dashboard.workflow_approval",
+      "label": "workflow_approval"
+    },
+    {
+      "id": "dashboard.team_credentials",
+      "label": "team_credentials"
+    },
+    {
+      "id": "dashboard.thread_api",
+      "label": "thread_api"
+    },
+    {
+      "id": "dashboard.team_settings",
+      "label": "team_settings"
+    },
+    {
+      "id": "dashboard.profiles",
+      "label": "profiles"
+    },
+    {
+      "id": "dashboard.repo_access",
+      "label": "repo_access"
+    },
+    {
+      "id": "dashboard.schedules",
+      "label": "schedules"
+    },
+    {
+      "id": "dashboard.oauth",
+      "label": "oauth"
+    },
+    {
+      "id": "dashboard.review_styles",
+      "label": "review_styles"
+    },
+    {
+      "id": "dashboard.routes",
+      "label": "routes"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dashboard",
+      "target": "dashboard.routes"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.agent_instructions"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.analyzer_cron"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.enabled_repos"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.repo_snapshots"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.review_chat_api"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.admin"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.agent_usage"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.eval_jobs"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.repo_cache"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.schedules"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.skills"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.slack_oauth"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.team_credentials"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.user_credentials"
+    },
+    {
+      "source": "dashboard.routes",
+      "target": "dashboard.user_instructions"
+    },
+    {
+      "source": "dashboard.agent_instructions",
+      "target": "dashboard.review_styles"
+    },
+    {
+      "source": "dashboard.agent_overrides",
+      "target": "dashboard.profiles"
+    },
+    {
+      "source": "dashboard.agent_overrides",
+      "target": "dashboard.team_settings"
+    },
+    {
+      "source": "dashboard.agent_overrides",
+      "target": "dashboard.user_mappings"
+    },
+    {
+      "source": "dashboard.profiles",
+      "target": "dashboard.options"
+    },
+    {
+      "source": "dashboard.profiles",
+      "target": "dashboard.oauth"
+    },
+    {
+      "source": "dashboard.team_settings",
+      "target": "dashboard.options"
+    },
+    {
+      "source": "dashboard.analyzer_cron",
+      "target": "dashboard.review_style_jobs"
+    },
+    {
+      "source": "dashboard.review_style_jobs",
+      "target": "dashboard.review_styles"
+    },
+    {
+      "source": "dashboard.enabled_repos",
+      "target": "dashboard.review_styles"
+    },
+    {
+      "source": "dashboard.plan_api",
+      "target": "dashboard.plan_store"
+    },
+    {
+      "source": "dashboard.plan_api",
+      "target": "dashboard.thread_api"
+    },
+    {
+      "source": "dashboard.thread_api",
+      "target": "dashboard.agent_overrides"
+    },
+    {
+      "source": "dashboard.thread_api",
+      "target": "dashboard.pr_diff"
+    },
+    {
+      "source": "dashboard.repo_access",
+      "target": "dashboard.review_styles"
+    },
+    {
+      "source": "dashboard.repo_access",
+      "target": "dashboard.profiles"
+    },
+    {
+      "source": "dashboard.repo_snapshots",
+      "target": "dashboard.review_styles"
+    },
+    {
+      "source": "dashboard.review_api",
+      "target": "dashboard.pr_diff"
+    },
+    {
+      "source": "dashboard.review_chat_api",
+      "target": "dashboard.thread_api"
+    },
+    {
+      "source": "dashboard.review_chat_api",
+      "target": "dashboard.review_api"
+    },
+    {
+      "source": "dashboard.schedules",
+      "target": "dashboard.thread_api"
+    },
+    {
+      "source": "dashboard.schedules",
+      "target": "dashboard.repo_access"
+    },
+    {
+      "source": "dashboard.user_credentials",
+      "target": "dashboard.notion_oauth"
+    },
+    {
+      "source": "dashboard.workflow_approval_api",
+      "target": "dashboard.plan_api"
+    },
+    {
+      "source": "dashboard.workflow_approval_api",
+      "target": "dashboard.workflow_approval"
+    }
+  ]
+}
