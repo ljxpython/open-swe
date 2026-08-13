@@ -70,6 +70,9 @@ Open SWE 不是“UI 直接调用一个 Agent 函数”。它把一次任务拆�
 12. `premium/12-dashboard-auth-stream-queue-sequence.drawio`：聚焦 OAuth state/session、线程权限、`run.start` 命令代理、`stream/events` SSE 和 busy thread Store 队列注入。
 13. `premium/13-sdk-command-event-protocol-sequence.drawio`：把 `stream.submit`、命令代理、SSE channels、SDK 投影和 busy queue 放在同一条协议级时序中。
 14. `premium/14-dashboard-ui-event-projection.drawio`：从 `StreamProvider` 的消息、工具、子 Agent、lifecycle 投影，追踪到 `streamMessagesToUi`、工作日志、子 Agent 卡片和运行按钮。
+15. `premium/15-review-chat-sequence.drawio`：PR Chat 的命令控制面、PR 虚拟文件注入、只读 GitHub 查询和 SSE 观察面。
+16. `premium/16-main-agent-loop.drawio`：从主 Agent 已取得任务开始，查看模型判断、工具执行、`ToolMessage` 回流、子 Agent 汇总和结束条件；不包含服务入口或存储链路。
+17. `premium/17-deepagents-prompts-and-delegation.drawio`：主模型何时直接调用工具、何时通过 `task` 启动 general-purpose，以及子结论如何回到主模型；同时解释提示词边界。
 
 ## 文件约定
 

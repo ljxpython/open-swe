@@ -1,0 +1,28 @@
+{
+  "title": "提示词与委派：主 Agent 直接行动，必要时才调用子 Agent",
+  "participants": [
+    {"id": "user", "label": "用户任务", "actor": true},
+    {"id": "main", "label": "主模型"},
+    {"id": "deep", "label": "Deep Agents 图"},
+    {"id": "direct", "label": "主 Agent 工具"},
+    {"id": "task", "label": "task 工具"},
+    {"id": "gp", "label": "general-purpose"}
+  ],
+  "messages": [
+    {"from": "user", "to": "deep", "label": "1. 用户需求进入主 Agent"},
+    {"from": "deep", "to": "main", "label": "2. 动态主提示词 + 历史 + 工具 schema"},
+    {"note": "主模型先决定下一步；没有任何规则要求先委派", "over": "main"},
+    {"from": "main", "to": "deep", "label": "3A. 简单或紧密相关：直接 read_file / grep / edit_file"},
+    {"from": "deep", "to": "direct", "label": "4A. 执行主 Agent 自己的工具调用"},
+    {"from": "direct", "to": "deep", "label": "ToolMessage：真实内容 / 错误 / 测试结果", "return": true},
+    {"from": "deep", "to": "main", "label": "5A. 主模型依据新证据继续或结束"},
+    {"note": "只有子问题独立、步骤多或会挤占上下文时，才走这条支路", "over": "task"},
+    {"from": "main", "to": "deep", "label": "3B. 可选：task(general-purpose, 明确子任务)"},
+    {"from": "deep", "to": "task", "label": "4B. 以任务描述新建子 Agent 会话"},
+    {"from": "task", "to": "gp", "label": "5B. 子提示词 + 单条子任务 + 可用工具"},
+    {"from": "gp", "to": "task", "label": "6B. 子 Agent 自己调查，最后给完整结论", "return": true},
+    {"from": "task", "to": "deep", "label": "7B. 只回传最终结论，包装为 ToolMessage", "return": true},
+    {"from": "deep", "to": "main", "label": "8B. 主模型拿结论继续编辑、验证或回复"},
+    {"from": "main", "to": "user", "label": "9. 无更多工具调用：基于证据给最终答复", "return": true}
+  ]
+}

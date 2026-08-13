@@ -1,0 +1,27 @@
+{
+  "title": "主 Agent Loop：判断、行动、观察、再判断",
+  "participants": [
+    {"id": "task", "label": "任务消息", "actor": true},
+    {"id": "model", "label": "主模型"},
+    {"id": "graph", "label": "Deep Agents 图"},
+    {"id": "tools", "label": "文件 / 命令工具"},
+    {"id": "subagent", "label": "通用子 Agent"}
+  ],
+  "messages": [
+    {"from": "task", "to": "graph", "label": "1. 任务 + 已有消息状态"},
+    {"from": "graph", "to": "model", "label": "2. 提示词、历史、可用工具"},
+    {"from": "model", "to": "graph", "label": "3. 选择下一步：read_file / grep"},
+    {"from": "graph", "to": "tools", "label": "4. 执行只读调查"},
+    {"from": "tools", "to": "graph", "label": "真实文件内容 / 搜索结果", "return": true},
+    {"from": "graph", "to": "model", "label": "5. 新证据变成 ToolMessage，回到模型"},
+    {"from": "model", "to": "graph", "label": "6. 决定 edit_file，再执行验证命令"},
+    {"from": "graph", "to": "tools", "label": "7. 写入修改 / execute 测试"},
+    {"from": "tools", "to": "graph", "label": "修改结果 / 测试输出或错误", "return": true},
+    {"note": "复杂且可拆分时，主模型可调用 task；不是每个任务都需要委派", "over": "model"},
+    {"from": "model", "to": "graph", "label": "可选：task(general-purpose, 子问题)"},
+    {"from": "graph", "to": "subagent", "label": "8. 带明确目标执行独立调查"},
+    {"from": "subagent", "to": "graph", "label": "只返回最终结论，过程不回传", "return": true},
+    {"from": "graph", "to": "model", "label": "9. 子结论也是下一轮证据"},
+    {"from": "model", "to": "task", "label": "10. 无更多工具调用时：基于已验证事实答复", "return": true}
+  ]
+}
