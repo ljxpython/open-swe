@@ -26,6 +26,8 @@
 10. [LangGraph SDK 命令协议与 SSE 事件模型](10-langgraph-sdk-command-and-sse.md)：`run.start`、SSE channels、事件投影和忙碌线程队列的协议级链路。
 11. [Dashboard UI 事件投影](11-dashboard-ui-event-projection.md)：SDK 流投影如何变成消息、工具调用、子 Agent 状态与发送/停止按钮。
 12. [PR Chat：`traced_chat_agent`](../traced-chat-agent-guide-zh.md)：围绕单个 PR 的只读问答、上下文注入、权限和 SSE 链路。
+13. [Deep Agents 主 Agent Loop](../deepagents-main-agent-loop-guide-zh.md)：从拿到用户任务开始，理解模型、工具、子 Agent 与验证如何形成闭环。
+14. [Deep Agents 提示词与委派](../deepagents-prompts-and-delegation-guide-zh.md)：解释主 Agent 如何拿到动态工作规则、何时直接调用工具、何时才委派给 `general-purpose`，以及 `create_agent` 怎样被封装为 `create_deep_agent`。
 
 ## 覆盖矩阵
 
@@ -46,6 +48,8 @@
 | LangGraph SDK 命令、SSE 和 React 投影 | `agent/dashboard/routes.py`、`agent/dashboard/thread_api.py`、`ui/src/features/agents/lib/AgentThreadStreamProvider.tsx`、`ui/src/features/agents/lib/streamMessagesToUi.ts` | 10 | SDK 类型/实现静态核对；代理、CSRF、dispatch 单测 | WebSocket、custom channels、多 namespace interrupt UI | 讲义完成 |
 | Dashboard UI 事件投影与运行控制 | `ui/src/features/agents/lib/streamMessagesToUi.ts`、`AgentThreadView.tsx`、`components/{messages,subagents,composer}/` | 11 | `streamMessagesToUi` 单测；图结构校验 | 输入编辑器、interrupt 卡片、真实 SSE 集成 | 讲义完成 |
 | PR Chat 只读问答 | `agent/chat.py`、`agent/dashboard/review_chat_api.py`、`ui/src/features/reviews/ReviewChat.tsx` | 12 | 源码与 review chat 单测静态核对；图结构/预览检查 | 真实 GitHub、模型和远端 SSE | 讲义完成 |
+| Deep Agents 主 Agent Loop | `agent/server.py`、`deepagents/graph.py`、`langchain/agents/factory.py` | 13 | 源码静态核对；图结构/预览检查 | 真实模型 trace | 讲义完成 |
+| Deep Agents 提示词与子 Agent 委派 | `agent/prompt.py`、`agent/server.py`、`prepare_run.py`、`deepagents/{graph,subagents}.py` | 14 | 静态提示词构造；图结构/预览检查 | 真实模型 task trace | 讲义完成 |
 
 ## 架构图谱覆盖
 
@@ -66,6 +70,8 @@
 | `architecture/premium/13-sdk-command-event-protocol-sequence.drawio` | 命令控制面、SSE 观察面、SDK 投影和忙碌线程队列的协议级时序 | `agent/dashboard/thread_api.py`、`ui/.../AgentThreadStreamProvider.tsx`、`ui/.../useSubmitAgentMessage.ts` |
 | `architecture/premium/14-dashboard-ui-event-projection.drawio` | SDK 投影如何组装为消息、工具、子 Agent 与运行按钮 | `ui/.../streamMessagesToUi.ts`、`AgentThreadView.tsx`、`components/{messages,subagents,composer}/` |
 | `architecture/premium/15-review-chat-sequence.drawio` | PR Chat 的命令控制面、PR 虚拟文件注入、只读 GitHub 查询和 SSE 观察面 | `agent/dashboard/review_chat_api.py`、`agent/chat.py`、`ui/.../ReviewChat.tsx` |
+| `architecture/premium/16-main-agent-loop.drawio` | 主 Agent 的模型判断、工具执行、ToolMessage 回流、子 Agent 汇总与正常结束 | `agent/server.py`、`deepagents/graph.py`、`langchain/agents/factory.py` |
+| `architecture/premium/17-deepagents-prompts-and-delegation.drawio` | 主 Agent 直接工具调用与 `task` 委派的分支、提示词和结果回流边界 | `agent/prompt.py`、`agent/server.py`、`deepagents/{graph,subagents}.py` |
 
 所有图都有对应的 `png/` 预览和 `html/` 交互查看器；`.drawio` 与 JSON 是可编辑、可重复生成的源文件。
 
@@ -85,6 +91,8 @@
 - 第 10 章完成 LangGraph SDK 命令、SSE channel、事件投影和 busy queue 协议讲义；新增第 13 张时序图校验为 `0 error / 0 warning / 0 crossings`，SDK 版本和协议类型做了本地静态核对，未连接远端 SSE。
 - 第 11 章完成 Dashboard UI 事件投影讲义；新增第 14 张组件图，使用 `streamMessagesToUi` 单测验证 turn 边界，未连接远端 SSE 或执行真实取消。
 - 第 12 章完成 PR Chat 的独立讲解；新增第 15 张时序图，结构校验为 `0 error / 0 warning`，并完成 PNG 预览检查。未调用真实 GitHub、模型或远端 SSE。
+- 第 13 章完成主 Agent Loop 独立讲解；新增第 16 张循环图，结构校验为 `0 error / 0 warning`，并完成 PNG 预览检查。未发起真实模型调用。
+- 第 14 章完成主 Agent 动态提示词、general-purpose 子 Agent 与 `create_agent -> create_deep_agent` 装配讲解；新增第 17 张分支时序图，结构校验为 `0 error / 0 warning`，并完成 PNG 预览检查。执行本地静态提示词构造，未发起真实模型调用。
 - 上述验证使用 fake LangGraph client 或本地 store，不调用模型、GitHub 或网络服务。
 
 ## 使用方式
