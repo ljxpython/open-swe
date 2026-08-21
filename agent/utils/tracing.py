@@ -7,6 +7,8 @@ import langsmith as ls
 from langgraph.graph.state import RunnableConfig
 from langgraph.pregel import Pregel
 
+from .langfuse import with_langfuse_tracing
+
 AGENT_TRACING_PROJECT = "open-swe-agent"
 REVIEW_TRACING_PROJECT = "open-swe-review"
 
@@ -18,6 +20,7 @@ def traced_graph_factory(
     @contextlib.asynccontextmanager
     async def entrypoint(config: RunnableConfig) -> AsyncIterator[Pregel]:
         graph = await factory(config)
+        graph = with_langfuse_tracing(graph, config, project_name)
         with ls.tracing_context(project_name=project_name):
             yield graph
 

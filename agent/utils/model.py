@@ -37,6 +37,10 @@ def _freeze_model_kwargs(kwargs: dict[str, object]) -> tuple[tuple[str, str], ..
     return tuple(sorted((key, repr(value)) for key, value in kwargs.items()))
 
 
+def _is_deepseek_model(model_id: str) -> bool:
+    return model_id.lower().startswith("openai:deepseek-")
+
+
 async def close_cached_models() -> None:
     models = list(_MODEL_CACHE.values())
     _MODEL_CACHE.clear()
@@ -93,6 +97,7 @@ class ModelKwargs(TypedDict, total=False):
     include: list[str] | None
     output_version: Literal["responses/v1"] | None
     model_kwargs: dict[str, object] | None
+    stream_usage: bool | None
 
 
 _ANTHROPIC_EFFORTS: set[AnthropicEffort] = {"low", "medium", "high", "xhigh", "max"}
@@ -137,15 +142,17 @@ def make_model(model_id: str, *, use_gateway: bool | None = None, **kwargs: Unpa
     if model_id.startswith("openai:"):
         # Custom OpenAI-compatible endpoints generally expose Chat Completions,
         # while the official endpoint uses Responses over the websocket base.
-        if model_id.startswith("openai:deepseek-"):
+        if _is_deepseek_model(model_id):
             custom_openai_base_url = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
         else:
             custom_openai_base_url = os.environ.get("OPENAI_BASE_URL")
         if custom_openai_base_url:
             model_kwargs["base_url"] = custom_openai_base_url.rstrip("/")
             model_kwargs["use_responses_api"] = False
-            if model_id.startswith("openai:deepseek-"):
+            if _is_deepseek_model(model_id):
                 model_kwargs["api_key"] = os.environ.get("DEEPSEEK_API_KEY")
+                # Chat Completions streaming only returns usage when requested.
+                model_kwargs["stream_usage"] = True
         else:
             model_kwargs["base_url"] = OPENAI_RESPONSES_WS_BASE_URL
             model_kwargs["use_responses_api"] = True
@@ -322,7 +329,7 @@ def validate_local_dev_llm_config() -> None:
 
     model_id = os.environ.get("LLM_MODEL_ID", DEFAULT_MODEL_ID)
 
-    if model_id.startswith("openai:deepseek-"):
+    if _is_deepseek_model(model_id):
         if not os.environ.get("DEEPSEEK_API_KEY"):
             raise ValueError(f"DEEPSEEK_API_KEY is required for configured model {model_id}")
     elif model_id.startswith("openai:") and not os.environ.get("OPENAI_API_KEY"):

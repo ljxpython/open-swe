@@ -7,6 +7,11 @@ import pytest
 from agent.utils import auth
 
 
+@pytest.mark.parametrize("source", ["dashboard", "schedule"])
+def test_leave_failure_comment_accepts_sources_without_comment_channel(source: str) -> None:
+    asyncio.run(auth.leave_failure_comment(source, "auth failed"))
+
+
 def test_leave_failure_comment_posts_generic_token_free_slack_notice(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -55,7 +55,7 @@ def test_supported_openai_models_include_deepseek() -> None:
         ("openai:gpt-5.6-sol", "GPT-5.6 Sol"),
         ("openai:gpt-5.6-terra", "GPT-5.6 Terra"),
         ("openai:gpt-5.6-luna", "GPT-5.6 Luna"),
-        ("openai:deepseek-v4-flash", "DeepSeek V4 Flash"),
+        ("openai:DeepSeek-V4-Flash", "DeepSeek V4 Flash"),
     ]
 
 
@@ -68,6 +68,10 @@ def test_deprecated_models_are_no_longer_selectable(model_id: str) -> None:
 def test_canonical_model_pair_migrates_deprecated_ids() -> None:
     assert canonical_model_pair(DEPRECATED_OPENAI, "xhigh") == (SUPPORTED_OPENAI, "xhigh")
     assert canonical_model_pair(DEPRECATED_ANTHROPIC, "max") == (SUPPORTED_ANTHROPIC, "max")
+    assert canonical_model_pair("openai:deepseek-v4-flash", "high") == (
+        "openai:DeepSeek-V4-Flash",
+        "high",
+    )
 
 
 def test_canonical_model_pair_falls_back_to_replacement_default_effort() -> None:
@@ -114,7 +118,7 @@ def test_models_with_profile_context_windows_enriches_copies() -> None:
         "openai:gpt-5.6-sol": 1_050_000,
         "openai:gpt-5.6-terra": 1_050_000,
         "openai:gpt-5.6-luna": 1_050_000,
-        "openai:deepseek-v4-flash": None,
+        "openai:DeepSeek-V4-Flash": None,
         SUPPORTED_KIMI: 1_048_576,
     }
 

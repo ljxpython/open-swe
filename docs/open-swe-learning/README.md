@@ -33,6 +33,7 @@
 17. [专题：`create_deep_agent(...)` 调用精读](17-create-deep-agent-call/README.md)：把 `get_agent` 最后的 Deep Agent 装配代码拆成参数、middleware 顺序、构图/运行边界、默认子智能体改造、浏览器子 Agent、`task` 委派、多智能体编排边界、用户 Skill/Composite backend，以及中间件基础编写与学习路线十四篇讲义。
 18. [traced graph 工厂与异步上下文管理器](18-traced-graph-factory-context-manager.md)：从 `get_agent` 之外理解闭包、`@asynccontextmanager`、`yield` 和 LangSmith tracing 的作用范围。
 19. [本地可观测性与调试](19-local-observability/README.md)：先用现有的 LangGraph Run、SSE、工具卡片和日志学习运行链路，再构建本地 trace recorder。
+20. [Langfuse Cloud 可观测性](20-langfuse-cloud/README.md)：用 LangChain callback 上报完整 Agent Run，并在 Cloud 中查看 Trace、Session、模型和工具。
 
 ## 根目录补充专题
 

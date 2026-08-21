@@ -61,7 +61,7 @@ SUPPORTED_MODELS: list[ModelOption] = [
         "supports_images": True,
     },
     {
-        "id": "openai:deepseek-v4-flash",
+        "id": "openai:DeepSeek-V4-Flash",
         "label": "DeepSeek V4 Flash",
         "efforts": ["high", "max"],
         "default_effort": "high",
@@ -109,6 +109,7 @@ FABLE_MODEL_IDS: frozenset[str] = frozenset(
 # instead of being discarded, so a user who never revisits their settings keeps an
 # equivalent model rather than silently inheriting the team default.
 DEPRECATED_MODEL_REPLACEMENTS: dict[str, str] = {
+    "openai:deepseek-v4-flash": "openai:DeepSeek-V4-Flash",
     "anthropic:claude-opus-4-8": "anthropic:claude-opus-5",
     "openai:gpt-5.5": "openai:gpt-5.6-sol",
     "google_genai:gemini-3.5-flash": "google_genai:gemini-3.6-flash",
