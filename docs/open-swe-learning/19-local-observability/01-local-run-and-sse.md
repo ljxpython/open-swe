@@ -22,17 +22,43 @@
 
 ## 最小真实观察
 
-启动 LangGraph 开发服务器：
+### 1. 在 PyCharm 启动 Runtime
 
-```bash
-uv run langgraph dev --server-log-level debug
+项目根目录的 [`run.py`](../../../run.py) 已封装下面三件事：切换到项目根目录、加载根目录 `.env`、执行 `langgraph dev --server-log-level debug --no-browser`。
+
+在 PyCharm 中确认解释器为项目 `.venv/bin/python`，右键 `run.py` 并选择“调试”。不需要配置脚本参数、工作目录、`.env` 文件路径，也不要添加 `--debug-port` 或 `--wait-for-client`。看到 Runtime 监听 `2024` 端口后再继续。
+
+### 2. 完成本地 Dashboard GitHub OAuth
+
+完整 Open SWE Run 会在调用模型前创建或恢复 sandbox，并解析 GitHub 身份；即使本次提示词只调用 `read_file` 也一样。先在浏览器打开：
+
+```text
+http://localhost:2024/dashboard/api/auth/login
 ```
 
-然后从 Dashboard 的 Agents 页面发送一个风险低的请求，例如“只读取并说明 `agent/utils/tracing.py` 的作用，不修改文件”。
+完成 GitHub 授权。该地址会创建本地会话并保存 OAuth token；不要把 token 复制到脚本或 `.env`。OAuth 发起地址必须与 `DASHBOARD_API_BASE_URL` 的主机和端口完全一致；`localhost` 与 `127.0.0.1` 的 Cookie 不共享。
+
+当前 `.env` 将前端地址设为 `http://localhost:3000`。因此授权回调保存 token 后会跳转到 `localhost:3000`；若 Vite 前端未启动，浏览器显示“拒绝连接”不代表授权失败。仍使用同一浏览器打开：
+
+```text
+http://localhost:2024/dashboard/api/me
+```
+
+响应 JSON 中的 `login` 就是下一步要传给 SDK 脚本的值。若需要 Dashboard 前端，再在另一个终端运行 `npm run dev`。
+
+### 3. 用 SDK 脚本创建独立 Run
+
+`--github-login` 是上一步 `/me` 返回的 GitHub 登录名；脚本只传 login，Runtime 从 Dashboard 的 token store 读取令牌：
+
+```bash
+uv run --env-file .env python scripts/debug_open_swe_run.py --github-login <你的 GitHub 登录名>
+```
+
+遗漏 login 时，脚本会在本地提示 `--github-login ... is required`；传入 login 但尚未完成 OAuth 时，Runtime 会报 `GitHub authentication required`。两者都表示尚未进入模型层，不是 DeepSeek 或 SSE 故障。
 
 预期现象：
 
-1. 启动命令的终端输出 HTTP 请求、异常堆栈和服务端调试日志。
+1. PyCharm Debug 窗口输出 HTTP 请求、异常堆栈和服务端调试日志。
 2. Dashboard 中出现 Agent 文本、工具卡片或子 Agent 卡片。
 3. 浏览器开发者工具的 Network 面板能看到 `stream/events` 请求；打开其 EventStream/Response 可查看持续到达的 SSE 帧。
 
@@ -78,7 +104,7 @@ ToolMessage                          -> 工具完成/错误的后备状态
 
 | 层次 | 内容 | 当前最佳观察点 |
 | --- | --- | --- |
-| LangChain 逻辑请求 | 合并后的 system prompt、历史 messages、可调用 tools、模型设置 | [`agent/middleware/prepare_run.py`](../../../agent/middleware/prepare_run.py:89) 的 `return await handler(request)` 前 |
+| LangChain 逻辑请求 | 合并后的 system prompt、历史 messages、可调用 tools、模型设置 | [`agent/middleware/sanitize_thinking_blocks.py`](../../../agent/middleware/sanitize_thinking_blocks.py) 的 `return await handler(request)` 前 |
 | Provider HTTP payload | 例如 OpenAI Responses 或 Anthropic Messages 的最终 JSON | 当前未记录；后续在 `make_model()` 创建的 provider transport 边界增加 recorder |
 
 在前一个断点处，先单步执行完 `request = request.override(...)`，再检查：
@@ -90,22 +116,16 @@ request.tools                # 这次模型可调用的工具 schema
 request.model_settings       # 本次模型参数
 ```
 
-这比只查看 `rendered_system_prompt` 更准确，因为 middleware 会将它与 Deep Agents 原有的 `request.system_message` 合并。注意：这仍不是 provider 最终 HTTP JSON；[`agent/utils/model.py`](../../../agent/utils/model.py) 会按 OpenAI、Anthropic 等 provider 调整 `base_url`、reasoning、timeout 和 Responses API 参数。
+这比只查看 `rendered_system_prompt` 更准确，因为 middleware 会将它与 Deep Agents 原有的 `request.system_message` 合并；同时它位于动态工具处理和模型清洗之后。注意：这仍不是 provider 最终 HTTP JSON；[`agent/utils/model.py`](../../../agent/utils/model.py) 会按 OpenAI、Anthropic 等 provider 调整 `base_url`、reasoning、timeout 和 Responses API 参数。
 
 ## 日志与断点
 
-`langgraph dev` 支持 `--server-log-level debug`，可提升运行时日志；也支持 `--debug-port PORT` 和 `--wait-for-client`，但后两者要求环境已经安装 `debugpy`。当前项目 `.venv` 未安装它，因此先使用终端日志和浏览器 SSE；需要 IDE 断点时，再明确确认后将其加入开发依赖。
-
-```bash
-uv run langgraph dev --server-log-level debug --debug-port 5678 --wait-for-client
-```
-
-使用与当前 IDE 版本兼容的 debugpy/DAP attach 配置连接 `localhost:5678` 后，在 `prepare_run.py` 的模型调用包装处设置断点。只在本地单用户环境使用 `--wait-for-client`，它会在启动时阻塞，直到调试器连接。
+当前调试方式是 PyCharm 直接 Debug `run.py`，不使用远程调试端口。需要断到 Runtime worker 时，在 `run.py` 自动生成的 PyCharm 配置中启用“调试时自动附加到子进程”；`langgraph dev` 的热重载可能将服务放到子进程中。不要把 PyCharm 的 Python Debug Server 连接到 `--debug-port`，前者使用 pydevd，后者使用 debugpy/DAP。
 
 标准 `logging` 已遍布服务端模块：例如 Agent 图装配、sandbox、Dashboard 代理都以 `logger.info/debug/warning/exception` 输出到服务进程。排障顺序应固定为：浏览器 Network 确认请求和 SSE，`langgraph dev` 终端确认后端异常，再用断点检查模型逻辑请求。别一上来开全量模型 payload 日志，私有代码和凭据一锅端落盘，那才是真正的憨批操作。
 
 ## 验证与下一章
 
-本章验证了 CLI 提供 `--server-log-level`、`--debug-port`、`--wait-for-client`，并以当前源码核对了 Dashboard 的 `/commands` 与 `/stream/events` 代理、stream modes 和工具 UI 投影；当前 `.venv` 缺少 `debugpy`，故未尝试远程断点；也未启动真实模型、sandbox 或外部服务。
+本章以 `run.py` + PyCharm Debug、`localhost` OAuth 和 SDK 脚本完成了真实 Runtime 验证：Run 能创建，SSE 能输出 `events`、`updates`，认证完成后会进入模型调用。并以当前源码核对了 Dashboard 的 `/commands` 与 `/stream/events` 代理、stream modes 和工具 UI 投影。
 
 下一章会在不改生产默认行为的前提下，设计一个显式开关的本地 JSONL recorder，记录每次模型调用的逻辑请求、工具调用和响应，并先处理脱敏与文件权限。

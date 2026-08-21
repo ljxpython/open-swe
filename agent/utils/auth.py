@@ -242,6 +242,15 @@ async def leave_failure_comment(
     message: str,
 ) -> None:
     """Leave an auth failure comment for the appropriate source."""
+    if source in ("github", "github_push"):
+        logger.warning(
+            "Auth failure for GitHub-triggered run (no token to post comment): %s", message
+        )
+        return
+    if source in ("dashboard", "schedule"):
+        logger.warning("Auth failure for %s-triggered run (no external comment channel)", source)
+        return
+
     config = get_config()
     configurable = config.get("configurable", {})
 
@@ -293,11 +302,6 @@ async def leave_failure_comment(
                 ),
                 agent_thread_id=thread_id if isinstance(thread_id, str) else None,
             )
-        return
-    if source in ("github", "github_push"):
-        logger.warning(
-            "Auth failure for GitHub-triggered run (no token to post comment): %s", message
-        )
         return
     raise ValueError(f"Unknown source: {source}")
 

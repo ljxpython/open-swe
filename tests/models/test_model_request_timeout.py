@@ -48,3 +48,16 @@ def test_explicit_timeout_wins() -> None:
 
 def test_unknown_provider_gets_no_timeout() -> None:
     assert "timeout" not in _make_model("ollama:llama4")
+
+
+def test_deepseek_v4_flash_uses_deepseek_endpoint_case_insensitively(monkeypatch) -> None:
+    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://deepseek-gateway.example/v1")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://openai-gateway.example/v1")
+
+    captured = _make_model("openai:DeepSeek-V4-Flash")
+
+    assert captured["base_url"] == "https://deepseek-gateway.example/v1"
+    assert captured["api_key"] == "deepseek-key"
+    assert captured["use_responses_api"] is False
+    assert captured["stream_usage"] is True
