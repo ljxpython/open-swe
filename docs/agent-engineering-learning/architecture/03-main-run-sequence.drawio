@@ -1,0 +1,88 @@
+<mxfile>
+  <diagram id="seqlayout" name="一次主 Agent 任务的真实执行链路">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="user" value="工程师" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;participant=umlActor;verticalAlign=bottom;spacingBottom=-14;labelBackgroundColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="entry" value="FastAPI / Webhook" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="240" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="dispatch" value="统一 Dispatch" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="440" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="runtime" value="LangGraph Runtime" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="640" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="factory" value="get_agent" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="840" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="sandbox" value="线程 Sandbox" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="model" value="主模型 + 工具" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="github" value="GitHub" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="40" width="100" height="680" as="geometry"/>
+        </mxCell>
+        <mxCell id="act0" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="runtime">
+          <mxGeometry x="45" y="190" width="10" height="350" as="geometry"/>
+        </mxCell>
+        <mxCell id="act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="entry">
+          <mxGeometry x="45" y="90" width="10" height="500" as="geometry"/>
+        </mxCell>
+        <mxCell id="act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="dispatch">
+          <mxGeometry x="45" y="140" width="10" height="500" as="geometry"/>
+        </mxCell>
+        <mxCell id="act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="factory">
+          <mxGeometry x="45" y="240" width="10" height="400" as="geometry"/>
+        </mxCell>
+        <mxCell id="act4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="sandbox">
+          <mxGeometry x="45" y="290" width="10" height="350" as="geometry"/>
+        </mxCell>
+        <mxCell id="act5" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="model">
+          <mxGeometry x="45" y="340" width="10" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="act6" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="github">
+          <mxGeometry x="45" y="440" width="10" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="m0" value="提出开发需求" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.1324;entryX=0;entryY=0.0;" edge="1" parent="1" source="user" target="act1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m1" value="解析来源与确定 thread_id" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1;entryX=0;entryY=0.0;" edge="1" parent="1" source="act1" target="act2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m2" value="create_durable_run(sync + interrupt)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1;entryX=0;entryY=0.0;" edge="1" parent="1" source="act2" target="act0">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m3" value="按 thread_id 创建主图" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1429;entryX=0;entryY=0.0;" edge="1" parent="1" source="act0" target="act3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m4" value="复用或创建隔离工作区" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.125;entryX=0;entryY=0.0;" edge="1" parent="1" source="act3" target="act4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m5" value="注入动态 prompt、工具和 middleware" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.25;entryX=0;entryY=0.0;" edge="1" parent="1" source="act3" target="act5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m6" value="read / edit / execute" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=0;exitY=0.1667;entryX=1;entryY=0.2857;" edge="1" parent="1" source="act5" target="act4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m7" value="代理认证的 git / gh" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=1;exitY=0.4286;entryX=0;entryY=0.0;" edge="1" parent="1" source="act4" target="act6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m8" value="checkpoint + 事件" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.8571;" edge="1" parent="1" source="act5" target="act0">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m9" value="可恢复 SSE 事件" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=1;entryY=0.9;" edge="1" parent="1" source="act0" target="act1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m10" value="进度、结果、PR 链接" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=0;exitY=1.0;entryX=0.5;entryY=0.8676;" edge="1" parent="1" source="act1" target="user">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

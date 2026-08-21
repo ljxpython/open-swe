@@ -1,0 +1,26 @@
+{
+  "title": "一次主 Agent 任务的真实执行链路",
+  "participants": [
+    {"id": "user", "label": "工程师", "actor": true},
+    {"id": "entry", "label": "FastAPI / Webhook"},
+    {"id": "dispatch", "label": "统一 Dispatch"},
+    {"id": "runtime", "label": "LangGraph Runtime"},
+    {"id": "factory", "label": "get_agent"},
+    {"id": "sandbox", "label": "线程 Sandbox"},
+    {"id": "model", "label": "主模型 + 工具"},
+    {"id": "github", "label": "GitHub"}
+  ],
+  "messages": [
+    {"from": "user", "to": "entry", "label": "提出开发需求"},
+    {"from": "entry", "to": "dispatch", "label": "解析来源与确定 thread_id"},
+    {"from": "dispatch", "to": "runtime", "label": "create_durable_run(sync + interrupt)"},
+    {"from": "runtime", "to": "factory", "label": "按 thread_id 创建主图"},
+    {"from": "factory", "to": "sandbox", "label": "复用或创建隔离工作区"},
+    {"from": "factory", "to": "model", "label": "注入动态 prompt、工具和 middleware"},
+    {"from": "model", "to": "sandbox", "label": "read / edit / execute", "async": true},
+    {"from": "sandbox", "to": "github", "label": "代理认证的 git / gh", "async": true},
+    {"from": "model", "to": "runtime", "label": "checkpoint + 事件", "async": true},
+    {"from": "runtime", "to": "entry", "label": "可恢复 SSE 事件", "return": true},
+    {"from": "entry", "to": "user", "label": "进度、结果、PR 链接", "return": true}
+  ]
+}

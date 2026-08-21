@@ -1,0 +1,58 @@
+<mxfile>
+  <diagram id="safety-components" name="Safety Components">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="caller" value="调用者&#xa;[Person]&#xa;Dashboard 用户或外部协作平台用户" style="shape=mxgraph.c4.person2;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#083F75;strokeColor=#06315C;" vertex="1" parent="1">
+          <mxGeometry x="0" y="50" width="200" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="webhook_gate" value="入口鉴别&#xa;[Component: webhook routes]&#xa;校验 GitHub、Slack、Linear 签名；仓库 allowlist" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="260" y="0" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="oauth_gate" value="身份与会话&#xa;[Component: dashboard/oauth.py]&#xa;GitHub OAuth、组织准入与受保护的线程访问" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="260" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="agent_guard" value="Agent 运行护栏&#xa;[Component: middleware]&#xa;输入净化、限步、超时、错误归一化、计划模式" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="570" y="80" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="pr_guard" value="PR 创建守卫&#xa;[Component: pr_creation_guard.py]&#xa;阻止 Shell 绕过，要求带归属的 open_pull_request" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="870" y="0" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="token_proxy" value="GitHub Token Proxy&#xa;[Component: LangSmith proxy]&#xa;令牌不落入 Sandbox；短期令牌到期前刷新" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="sandbox_boundary" value="每线程 Sandbox&#xa;[Component: backend]&#xa;文件和命令与服务进程隔离" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="870" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="github_api" value="GitHub API / Git&#xa;[Software System: GitHub App / OAuth]&#xa;按用户或安装授权执行仓库操作" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#8C8496;strokeColor=#736782;" vertex="1" parent="1">
+          <mxGeometry x="1490" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="e0" value="签名事件" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="caller" target="webhook_gate">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="200" y="80"/><mxPoint x="250" y="80"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="登录 / API" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="caller" target="oauth_gate">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="200" y="190"/><mxPoint x="250" y="190"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="已验证任务" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="webhook_gate" target="agent_guard">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="510" y="100"/><mxPoint x="560" y="100"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="已授权线程" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="oauth_gate" target="agent_guard">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="510" y="180"/><mxPoint x="560" y="180"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="工具调用检查" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="agent_guard" target="pr_guard">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="810" y="100"/><mxPoint x="860" y="100"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="受限执行" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="agent_guard" target="sandbox_boundary">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="810" y="180"/><mxPoint x="860" y="180"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="GH_TOKEN=dummy" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="sandbox_boundary" target="token_proxy">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1120" y="220"/><mxPoint x="1170" y="220"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="注入短期凭据" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="token_proxy" target="github_api">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1420" y="220"/><mxPoint x="1470" y="220"/></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

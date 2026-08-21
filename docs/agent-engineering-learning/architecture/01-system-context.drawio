@@ -1,0 +1,138 @@
+<mxfile>
+  <diagram id="system-context" name="System Context">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="engineer" value="工程师&#xa;[Person]&#xa;在 Dashboard、Slack、Linear 或 GitHub 提交开发请求" style="shape=mxgraph.c4.person2;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#083F75;strokeColor=#06315C;" vertex="1" parent="1">
+          <mxGeometry x="20" y="110" width="200" height="180" as="geometry"/>
+        </mxCell>
+        <UserObject label="Open SWE&#xa;[Software System: FastAPI + LangGraph + Deep Agents]&#xa;按线程运行受控的软件工程 Agent" link="data:page/id,runtime-containers" id="openswe">
+          <mxCell style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#1061B0;strokeColor=#0D5091;" vertex="1" parent="1">
+          <mxGeometry x="300" y="230" width="240" height="120" as="geometry"/>
+        </mxCell>
+        </UserObject>
+        <mxCell id="github" value="GitHub&#xa;[Software System: OAuth / App / Webhook]&#xa;代码仓库、Pull Request 与事件入口" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#8C8496;strokeColor=#736782;" vertex="1" parent="1">
+          <mxGeometry x="920" y="370" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="chatops" value="Slack / Linear&#xa;[Software System: Webhook]&#xa;协作消息与任务入口" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#8C8496;strokeColor=#736782;" vertex="1" parent="1">
+          <mxGeometry x="0" y="330" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="langgraph" value="LangGraph Runtime&#xa;[Software System: Threads / Runs / Checkpoints]&#xa;持久化执行、事件流与恢复" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#8C8496;strokeColor=#736782;" vertex="1" parent="1">
+          <mxGeometry x="610" y="0" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="models" value="模型提供商&#xa;[Software System: LLM API]&#xa;负责理解、规划和选择工具" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#8C8496;strokeColor=#736782;" vertex="1" parent="1">
+          <mxGeometry x="610" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="sandbox" value="隔离 Sandbox&#xa;[Software System: LangSmith / Modal / E2B ...]&#xa;执行 git、测试和文件修改" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#8C8496;strokeColor=#736782;" vertex="1" parent="1">
+          <mxGeometry x="610" y="310" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="e0" value="发起任务 / 查看进度" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="engineer" target="openswe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="220" y="260"/><mxPoint x="290" y="260"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="Webhook" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="github" target="openswe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1040" y="330"/><mxPoint x="1040" y="290"/><mxPoint x="1040" y="290"/><mxPoint x="1040" y="290"/><mxPoint x="560" y="290"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="Webhook" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="chatops" target="openswe">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="340"/><mxPoint x="290" y="340"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="创建 Thread / Run" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="openswe" target="langgraph">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="420" y="180"/><mxPoint x="420" y="120"/><mxPoint x="420" y="120"/><mxPoint x="420" y="120"/><mxPoint x="600" y="120"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="模型调用" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="openswe" target="models">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="260"/><mxPoint x="600" y="260"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="隔离执行" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="openswe" target="sandbox">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="330"/><mxPoint x="600" y="330"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="受控 git / gh" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="sandbox" target="github">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="850" y="400"/><mxPoint x="900" y="400"/></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="runtime-containers" name="Runtime Containers">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="dashboard" value="Dashboard / UI&#xa;[Container: React]&#xa;创建线程、展示 SSE 事件、审核计划" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#23A2D9;strokeColor=#0E7DAD;" vertex="1" parent="1">
+          <mxGeometry x="0" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="fastapi" value="FastAPI 接入层&#xa;[Container: FastAPI]&#xa;OAuth、Dashboard API、Webhook 签名校验" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#23A2D9;strokeColor=#0E7DAD;" vertex="1" parent="1">
+          <mxGeometry x="300" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <UserObject label="LangGraph Runtime&#xa;[Container: LangGraph API]&#xa;运行多张图、保存线程和检查点" link="data:page/id,agent-components" id="runtime">
+          <mxCell style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#23A2D9;strokeColor=#0E7DAD;" vertex="1" parent="1">
+          <mxGeometry x="610" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        </UserObject>
+        <mxCell id="postgres" value="持久化数据库&#xa;[Container: PostgreSQL]&#xa;生产 Runtime 的线程和检查点" style="shape=cylinder3;size=15;boundedLbl=1;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#23A2D9;strokeColor=#0E7DAD;" vertex="1" parent="1">
+          <mxGeometry x="920" y="0" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="redis" value="任务协调存储&#xa;[Container: Redis]&#xa;生产 Runtime 的 worker / 队列能力" style="shape=cylinder3;size=15;boundedLbl=1;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#23A2D9;strokeColor=#0E7DAD;" vertex="1" parent="1">
+          <mxGeometry x="920" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker_sandbox" value="每线程 Sandbox&#xa;[Container: Sandbox provider]&#xa;代码工作区与命令执行" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#23A2D9;strokeColor=#0E7DAD;" vertex="1" parent="1">
+          <mxGeometry x="920" y="310" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="e0" value="HTTPS / SSE" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="dashboard" target="fastapi">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="220"/><mxPoint x="290" y="220"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="commands / stream proxy" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="fastapi" target="runtime">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="220"/><mxPoint x="600" y="220"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="thread / checkpoint" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="runtime" target="postgres">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="730" y="110"/><mxPoint x="730" y="60"/><mxPoint x="730" y="60"/><mxPoint x="730" y="60"/><mxPoint x="900" y="60"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="workers" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="runtime" target="redis">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="850" y="220"/><mxPoint x="900" y="220"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="Agent backend" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="runtime" target="worker_sandbox">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="730" y="320"/><mxPoint x="730" y="370"/><mxPoint x="730" y="370"/><mxPoint x="730" y="370"/><mxPoint x="900" y="370"/></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="agent-components" name="Agent Components">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="agent_factory" value="get_agent&#xa;[Component: agent/server.py]&#xa;按线程装配模型、工具、Backend 与中间件" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="0" y="230" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="prepare" value="PrepareAgentRunMiddleware&#xa;[Component: middleware]&#xa;解析身份、准备 Sandbox、生成动态提示词" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="300" y="0" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="deepagent" value="create_deep_agent&#xa;[Component: deepagents]&#xa;提供文件、Shell、子 Agent 与工具循环" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="300" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="guardrails" value="Guardrail Middleware&#xa;[Component: LangChain middleware]&#xa;限步、超时、错误、计划模式、PR 守卫" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="300" y="310" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="tools" value="Curated Tools&#xa;[Component: agent/tools]&#xa;平台能力与明确的外部副作用" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="610" y="160" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="specialists" value="专用图&#xa;[Component: reviewer / analyzer / chat]&#xa;将审查、学习、问答同主开发隔离" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=12;fontColor=#ffffff;align=center;fillColor=#63BEF2;strokeColor=#2086C9;" vertex="1" parent="1">
+          <mxGeometry x="300" y="470" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="e0" value="run preparation" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="agent_factory" target="prepare">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="120" y="160"/><mxPoint x="120" y="60"/><mxPoint x="120" y="60"/><mxPoint x="120" y="60"/><mxPoint x="290" y="60"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e1" value="build graph" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="agent_factory" target="deepagent">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="260"/><mxPoint x="290" y="260"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="ordered stack" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="agent_factory" target="guardrails">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="330"/><mxPoint x="290" y="330"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="tool calls" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="deepagent" target="tools">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="550" y="220"/><mxPoint x="600" y="220"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="独立职责" style="endArrow=blockThin;endFill=1;endSize=10;html=1;fontSize=11;fontColor=#404040;strokeColor=#828282;labelBackgroundColor=#ffffff;rounded=0;" edge="1" parent="1" source="agent_factory" target="specialists">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="120" y="420"/><mxPoint x="120" y="530"/><mxPoint x="120" y="530"/><mxPoint x="120" y="530"/><mxPoint x="290" y="530"/></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

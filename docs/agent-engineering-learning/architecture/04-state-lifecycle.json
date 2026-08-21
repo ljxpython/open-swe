@@ -1,0 +1,22 @@
+{
+  "title": "Thread、Run、Checkpoint 与 Sandbox 的生命周期",
+  "participants": [
+    {"id": "trigger", "label": "Dashboard / Webhook", "actor": true},
+    {"id": "thread", "label": "LangGraph Thread"},
+    {"id": "run", "label": "Durable Run"},
+    {"id": "checkpoint", "label": "Checkpoint Store"},
+    {"id": "sandbox", "label": "Sandbox Metadata"},
+    {"id": "agent", "label": "Agent Loop"}
+  ],
+  "messages": [
+    {"from": "trigger", "to": "thread", "label": "创建或定位确定性 thread_id"},
+    {"from": "trigger", "to": "run", "label": "create_durable_run"},
+    {"from": "run", "to": "checkpoint", "label": "durability=sync：每步保存"},
+    {"from": "run", "to": "agent", "label": "恢复消息和状态"},
+    {"from": "agent", "to": "sandbox", "label": "读取 sandbox_id；复用或首次创建"},
+    {"from": "agent", "to": "checkpoint", "label": "状态更新 / 回合快照", "async": true},
+    {"note": "进程重启时：Thread + Checkpoint 仍在；Sandbox 通过 metadata 的 sandbox_id 重新连接。", "over": "checkpoint"},
+    {"from": "trigger", "to": "run", "label": "新消息：interrupt 当前 run 并续跑", "async": true},
+    {"from": "run", "to": "agent", "label": "带完整历史继续", "return": true}
+  ]
+}

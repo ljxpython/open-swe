@@ -1,0 +1,70 @@
+<mxfile>
+  <diagram id="seqlayout" name="Thread、Run、Checkpoint 与 Sandbox 的生命周期">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="trigger" value="Dashboard / Webhook" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;participant=umlActor;verticalAlign=bottom;spacingBottom=-14;labelBackgroundColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="100" height="590" as="geometry"/>
+        </mxCell>
+        <mxCell id="thread" value="LangGraph Thread" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="260" y="40" width="100" height="590" as="geometry"/>
+        </mxCell>
+        <mxCell id="run" value="Durable Run" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="480" y="40" width="100" height="590" as="geometry"/>
+        </mxCell>
+        <mxCell id="checkpoint" value="Checkpoint Store" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="700" y="40" width="100" height="590" as="geometry"/>
+        </mxCell>
+        <mxCell id="sandbox" value="Sandbox Metadata" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="920" y="40" width="100" height="590" as="geometry"/>
+        </mxCell>
+        <mxCell id="agent" value="Agent Loop" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="40" width="100" height="590" as="geometry"/>
+        </mxCell>
+        <mxCell id="act0" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="run">
+          <mxGeometry x="45" y="140" width="10" height="360" as="geometry"/>
+        </mxCell>
+        <mxCell id="act1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="thread">
+          <mxGeometry x="45" y="90" width="10" height="460" as="geometry"/>
+        </mxCell>
+        <mxCell id="act2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="checkpoint">
+          <mxGeometry x="45" y="190" width="10" height="360" as="geometry"/>
+        </mxCell>
+        <mxCell id="act3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="agent">
+          <mxGeometry x="45" y="240" width="10" height="310" as="geometry"/>
+        </mxCell>
+        <mxCell id="act4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;fillColor=#ffffff;" vertex="1" parent="sandbox">
+          <mxGeometry x="45" y="290" width="10" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="m0" value="创建或定位确定性 thread_id" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.1525;entryX=0;entryY=0.0;" edge="1" parent="1" source="trigger" target="act1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m1" value="create_durable_run" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0.5;exitY=0.2373;entryX=0;entryY=0.0;" edge="1" parent="1" source="trigger" target="act0">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m2" value="durability=sync：每步保存" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.1389;entryX=0;entryY=0.0;" edge="1" parent="1" source="act0" target="act2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m3" value="恢复消息和状态" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=1;exitY=0.2778;entryX=0;entryY=0.0;" edge="1" parent="1" source="act0" target="act3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m4" value="读取 sandbox_id；复用或首次创建" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;exitX=0;exitY=0.1613;entryX=1;entryY=0.0;" edge="1" parent="1" source="act3" target="act4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m5" value="状态更新 / 回合快照" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=0;exitY=0.3226;entryX=1;entryY=0.4167;" edge="1" parent="1" source="act3" target="act2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="note6" value="进程重启时：Thread + Checkpoint 仍在；Sandbox 通过 metadata 的 sandbox_id 重新连接。" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="770" y="410" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="m7" value="新消息：interrupt 当前 run 并续跑" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;exitX=0.5;exitY=0.7627;entryX=0;entryY=0.8611;" edge="1" parent="1" source="trigger" target="act0">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="m8" value="带完整历史继续" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;curved=0;rounded=0;strokeColor=#999999;fontColor=#999999;exitX=1;exitY=1.0;entryX=0;entryY=0.8387;" edge="1" parent="1" source="act0" target="act3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

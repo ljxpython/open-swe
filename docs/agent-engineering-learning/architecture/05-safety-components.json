@@ -1,0 +1,28 @@
+{
+  "title": "Open SWE 的分层安全与权限边界",
+  "levels": [
+    {
+      "name": "Safety Components",
+      "elements": [
+        {"id": "caller", "type": "person", "label": "调用者", "desc": "Dashboard 用户或外部协作平台用户"},
+        {"id": "webhook_gate", "type": "component", "label": "入口鉴别", "tech": "webhook routes", "desc": "校验 GitHub、Slack、Linear 签名；仓库 allowlist"},
+        {"id": "oauth_gate", "type": "component", "label": "身份与会话", "tech": "dashboard/oauth.py", "desc": "GitHub OAuth、组织准入与受保护的线程访问"},
+        {"id": "agent_guard", "type": "component", "label": "Agent 运行护栏", "tech": "middleware", "desc": "输入净化、限步、超时、错误归一化、计划模式"},
+        {"id": "pr_guard", "type": "component", "label": "PR 创建守卫", "tech": "pr_creation_guard.py", "desc": "阻止 Shell 绕过，要求带归属的 open_pull_request"},
+        {"id": "token_proxy", "type": "component", "label": "GitHub Token Proxy", "tech": "LangSmith proxy", "desc": "令牌不落入 Sandbox；短期令牌到期前刷新"},
+        {"id": "sandbox_boundary", "type": "component", "label": "每线程 Sandbox", "tech": "backend", "desc": "文件和命令与服务进程隔离"},
+        {"id": "github_api", "type": "external", "label": "GitHub API / Git", "tech": "GitHub App / OAuth", "desc": "按用户或安装授权执行仓库操作"}
+      ],
+      "relations": [
+        {"from": "caller", "to": "webhook_gate", "label": "签名事件"},
+        {"from": "caller", "to": "oauth_gate", "label": "登录 / API"},
+        {"from": "webhook_gate", "to": "agent_guard", "label": "已验证任务"},
+        {"from": "oauth_gate", "to": "agent_guard", "label": "已授权线程"},
+        {"from": "agent_guard", "to": "pr_guard", "label": "工具调用检查"},
+        {"from": "agent_guard", "to": "sandbox_boundary", "label": "受限执行"},
+        {"from": "sandbox_boundary", "to": "token_proxy", "label": "GH_TOKEN=dummy"},
+        {"from": "token_proxy", "to": "github_api", "label": "注入短期凭据"}
+      ]
+    }
+  ]
+}
