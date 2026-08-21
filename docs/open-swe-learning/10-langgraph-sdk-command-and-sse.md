@@ -182,6 +182,111 @@ async with client.stream(
 
 项目注释明确指出：只发 `messages-tuple` 的旧 run 对 `@langchain/react` 的 `messages/tools/lifecycle` 投影几乎没有可消费内容。因此 Dashboard 同时保留兼容模式和 v2 频道。
 
+### 4.4 React SDK 和 Python SDK 是什么关系？
+
+当前项目同时使用两套客户端包，但它们访问的是同一个 LangGraph Server 协议，不是两套不同的图运行时：
+
+| 客户端 | 使用位置 | 主要职责 |
+| --- | --- | --- |
+| `langgraph_sdk` | Python 后端 | `threads`、`runs`、`store`、状态和后台 Run 管理 |
+| `@langchain/langgraph-sdk` | React 前端 | HTTP 客户端、命令发送、线程状态和事件流 transport |
+| `@langchain/react` | React 前端 | `StreamProvider`、`useStreamContext`、事件聚合和 React 状态 |
+
+可以把它们理解成两个语言环境的客户端：
+
+```text
+Python SDK ─┐
+            ├── LangGraph Server 的 HTTP/命令/SSE 协议
+React SDK ──┘
+```
+
+Python SDK 适合 Slack、Linear、GitHub Webhook 和定时任务，它们只需要创建或查询 Run。React SDK 还要处理浏览器交互：增量消息、工具卡片、停止、恢复、重连和 `isLoading`。因此 Dashboard 不能只把浏览器文本翻译成 `create_durable_run()`，否则还要重新实现 React SDK 依赖的命令响应和事件协议。
+
+当前前端在 `ui/src/features/agents/lib/AgentThreadStreamProvider.tsx` 创建 `Client` 和 `StreamProvider`；后端的 `create_durable_run()` 则位于 `agent/dispatch.py`，主要供非浏览器触发方使用。
+
+### 4.5 SSE 到底由谁实现？
+
+SSE 是三层协作，不是 Dashboard 自己实现了一套 Agent 流式协议：
+
+| 层 | 责任 |
+| --- | --- |
+| LangGraph Server | 执行 graph，生成 lifecycle、messages、tools、values 等事件 |
+| FastAPI + `httpx` | 鉴权、线程可读性检查，并把上游 SSE bytes 透明转发 |
+| `@langchain/react` | 解析 SSE、维护 stream 状态，并投影为 React 消息和工具状态 |
+
+真实请求链是：
+
+```text
+Browser StreamProvider
+  -> POST /dashboard/api/threads/{id}/stream/events
+  -> FastAPI StreamingResponse
+  -> httpx POST {LANGGRAPH_URL}/threads/{id}/stream/events
+  -> LangGraph Server 产生 text/event-stream
+  -> httpx.aiter_bytes() 原样转发
+  -> React SDK 解码和聚合
+```
+
+当前项目的代理代码在 `agent/dashboard/thread_api.py:_stream_thread_events`：它设置 `Accept: text/event-stream`，通过 `response.aiter_bytes()` 逐块 `yield`；成功事件不重新解析、不重新组装。路由在 `agent/dashboard/routes.py:api_thread_stream_events` 使用 `StreamingResponse` 返回 `text/event-stream`。
+
+因此，答案可以精确表述为：**事件协议和事件生产由 LangGraph Server 提供，SSE transport 和 React 状态处理由 LangGraph SDK 实现，Open SWE 的 FastAPI 只负责安全代理和透明转发。**
+
+`commands` 和 `stream/events` 是两条不同通道：前者触发或控制 Run，后者只观察 Run。Dashboard 使用 `httpx` 代理这两条协议，是为了保留 React SDK 的原生行为，而不是因为 Python SDK 做不到创建 Run。
+
+### 4.6 `stream/events` 会执行 Run 吗？
+
+不会。在当前项目中：
+
+```text
+POST /threads/{thread_id}/commands
+    + method = run.start
+    -> 创建并执行 Run
+
+POST /threads/{thread_id}/stream/events
+    -> 订阅这个 thread 的运行事件
+    -> 不创建 Run，不启动 Agent
+```
+
+可以把 `commands` 理解成“启动或控制按钮”，把 `stream/events` 理解成“监控摄像头”。前端通常先建立事件订阅，再发送 `run.start`；Run 开始后，LangGraph Server 产生的模型、工具和生命周期事件会通过已经建立的 SSE 连接返回。由于项目启用了 `stream_resumable=True`，如果订阅稍晚建立，客户端还可以回放已保留的事件。
+
+一次 Dashboard 交互可以简化为：
+
+```text
+浏览器 --普通 JSON--> /commands
+浏览器 <--202/204 普通响应-- /commands
+
+浏览器 --POST 建立流--> /stream/events
+浏览器 <--SSE 增量事件-- /stream/events
+```
+
+这里的 `POST` 方法本身不代表“执行任务”；是否执行由命令体中的 `method` 决定，是否流式则由响应的 `Content-Type: text/event-stream` 和持续输出行为决定。
+
+### 4.7 当前项目哪些接口是流式的？
+
+前后端并不是所有接口都使用流式输出：
+
+| 接口/调用 | 是否流式 | 用途 |
+| --- | ---: | --- |
+| `POST /threads/{id}/commands` | 否 | 启动、停止或控制 Run |
+| `POST /threads/{id}/stream/events` | 是 | 接收模型、工具和生命周期事件 |
+| `GET /threads/{id}/state` | 否 | 获取当前完整状态 |
+| `GET /threads/{id}/history` | 否 | 获取历史 checkpoint |
+| `POST /messages` | 否 | Agent 工作期间追加消息到队列 |
+| `client.runs.create()` | 否 | 后端创建 Run |
+| Run 完成 webhook | 否 | Run 结束后通知后端 |
+
+后端到 LangGraph Server 也分成两种：
+
+```text
+commands:
+FastAPI --普通 httpx POST--> LangGraph Server
+
+stream/events:
+FastAPI --httpx 流式请求--> LangGraph Server
+FastAPI <--逐块转发 SSE-- LangGraph Server
+```
+
+因此，SSE 只负责持续观察 Agent 的执行过程；创建、查询、停止、追加消息和读取状态仍然使用普通 HTTP。`stream/events` 不是第二个 Run 创建接口。
+
 ## 5. `@langchain/react` 如何消费事件
 
 ### 5.1 Provider 的组装

@@ -25,9 +25,23 @@
 9. [测试、类型检查、部署与安全边界](09-testing-deployment-and-security.md)：工程验收、凭据边界和课程总收束。
 10. [LangGraph SDK 命令协议与 SSE 事件模型](10-langgraph-sdk-command-and-sse.md)：`run.start`、SSE channels、事件投影和忙碌线程队列的协议级链路。
 11. [Dashboard UI 事件投影](11-dashboard-ui-event-projection.md)：SDK 流投影如何变成消息、工具调用、子 Agent 状态与发送/停止按钮。
-12. [PR Chat：`traced_chat_agent`](../traced-chat-agent-guide-zh.md)：围绕单个 PR 的只读问答、上下文注入、权限和 SSE 链路。
-13. [Deep Agents 主 Agent Loop](../deepagents-main-agent-loop-guide-zh.md)：从拿到用户任务开始，理解模型、工具、子 Agent 与验证如何形成闭环。
-14. [Deep Agents 提示词与委派](../deepagents-prompts-and-delegation-guide-zh.md)：解释主 Agent 如何拿到动态工作规则、何时直接调用工具、何时才委派给 `general-purpose`，以及 `create_agent` 怎样被封装为 `create_deep_agent`。
+12. [LangGraph SDK 总览](12-langgraph-sdk-guide-zh.md)：讲解 `threads`、`runs`、`store`、checkpoint、React/Python SDK 和前后端流式交互。
+13. [FastAPI App Router 与接口地图](13-fastapi-app-router-map-zh.md)：解释 `agent/api/app.py` 挂载的业务接口及其 LangGraph SDK 使用边界。
+14. [Deep Agent API 与核心概念](14-deep-agent-api-and-concepts-zh.md)：学习 `create_deep_agent` 的参数、内置能力和返回值。
+15. [Open SWE 的 Deep Agent 装配](15-open-swe-create-deep-agent-assembly-zh.md)：追踪 `get_agent` 如何准备模型、Sandbox、工具、skills 和 middleware。
+16. [Deep Agent 内部运行机制](16-deep-agent-internals-and-runtime-zh.md)：阅读当前安装的 `deepagents` 源码，理解 middleware、`task` 子图和最终 `create_agent` 调用。
+17. [专题：`create_deep_agent(...)` 调用精读](17-create-deep-agent-call/README.md)：把 `get_agent` 最后的 Deep Agent 装配代码拆成参数、middleware 顺序、构图/运行边界、默认子智能体改造、浏览器子 Agent、`task` 委派、多智能体编排边界、用户 Skill/Composite backend，以及中间件基础编写与学习路线十四篇讲义。
+18. [traced graph 工厂与异步上下文管理器](18-traced-graph-factory-context-manager.md)：从 `get_agent` 之外理解闭包、`@asynccontextmanager`、`yield` 和 LangSmith tracing 的作用范围。
+19. [本地可观测性与调试](19-local-observability/README.md)：先用现有的 LangGraph Run、SSE、工具卡片和日志学习运行链路，再构建本地 trace recorder。
+
+## 根目录补充专题
+
+以下讲义位于 `docs/` 根目录，是跨章节补充材料，不占用 `open-swe-learning` 的连续编号：
+
+- [PR Chat：`traced_chat_agent`](../traced-chat-agent-guide-zh.md)：围绕单个 PR 的只读问答、上下文注入、权限和 SSE 链路。
+- [Deep Agents 主 Agent Loop](../deepagents-main-agent-loop-guide-zh.md)：从拿到用户任务开始，理解模型、工具、子 Agent 与验证如何形成闭环。
+- [Deep Agents 提示词与委派](../deepagents-prompts-and-delegation-guide-zh.md)：解释动态工作规则、工具调用、`general-purpose` 委派和 `create_agent` 封装。
+- [LangGraph Pregel、RunnableConfig 与 tracing 工厂](../langgraph-pregel-runnableconfig-tracing-guide-zh.md)：解释 Pregel 执行模型、运行配置和 `traced_graph_factory()` 生命周期。
 
 ## 覆盖矩阵
 
@@ -50,6 +64,7 @@
 | PR Chat 只读问答 | `agent/chat.py`、`agent/dashboard/review_chat_api.py`、`ui/src/features/reviews/ReviewChat.tsx` | 12 | 源码与 review chat 单测静态核对；图结构/预览检查 | 真实 GitHub、模型和远端 SSE | 讲义完成 |
 | Deep Agents 主 Agent Loop | `agent/server.py`、`deepagents/graph.py`、`langchain/agents/factory.py` | 13 | 源码静态核对；图结构/预览检查 | 真实模型 trace | 讲义完成 |
 | Deep Agents 提示词与子 Agent 委派 | `agent/prompt.py`、`agent/server.py`、`prepare_run.py`、`deepagents/{graph,subagents}.py` | 14 | 静态提示词构造；图结构/预览检查 | 真实模型 task trace | 讲义完成 |
+| `create_deep_agent(...)` 调用专题 | `agent/server.py:606-669,1102,1162-1191,1182-1237`、`agent/dashboard/skills.py`、`agent/tools/user_skills.py`、`agent/utils/read_only_backend.py`、`agent/integrations/stagehand_browser.py`、`agent/middleware/{prepare_run,dynamic_tools}.py`、`deepagents/{graph,subagents,backends}.py`、`agent/scheduler.py` | 17 专题 | 参数、middleware 顺序、子 Agent 继承、浏览器可选注册、`task` 协作、Skill 的 Store 路由，以及 Deep Agents/LangGraph 编排边界静态核对 | 真实模型、子 Agent trace 与 Stagehand 浏览器 | 讲义完成 |
 
 ## 架构图谱覆盖
 
@@ -72,6 +87,9 @@
 | `architecture/premium/15-review-chat-sequence.drawio` | PR Chat 的命令控制面、PR 虚拟文件注入、只读 GitHub 查询和 SSE 观察面 | `agent/dashboard/review_chat_api.py`、`agent/chat.py`、`ui/.../ReviewChat.tsx` |
 | `architecture/premium/16-main-agent-loop.drawio` | 主 Agent 的模型判断、工具执行、ToolMessage 回流、子 Agent 汇总与正常结束 | `agent/server.py`、`deepagents/graph.py`、`langchain/agents/factory.py` |
 | `architecture/premium/17-deepagents-prompts-and-delegation.drawio` | 主 Agent 直接工具调用与 `task` 委派的分支、提示词和结果回流边界 | `agent/prompt.py`、`agent/server.py`、`deepagents/{graph,subagents}.py` |
+| `architecture/premium/18-subagent-task-coordination.drawio` | `task` 按名称选择子图、主 Agent 扇出/扇入，以及子 Agent 不直接互调的边界 | `agent/server.py`、`deepagents/{graph,subagents}.py` |
+| `architecture/premium/19-multi-agent-orchestration-boundaries.drawio` | Deep Agents 的模型驱动委派与 LangGraph 的固定路由、并行、汇聚、审批边界 | `agent/server.py`、`deepagents/{graph,subagents}.py`、`agent/scheduler.py` |
+| `architecture/premium/20-user-skills-and-composite-backend.drawio` | 用户 Skill 如何写入 Store、在新 Run 中发现，并通过只读 `/skills/` 虚拟目录按需读取 | `agent/server.py`、`agent/dashboard/skills.py`、`agent/tools/user_skills.py`、`deepagents/{middleware/skills,backends}.py` |
 
 所有图都有对应的 `png/` 预览和 `html/` 交互查看器；`.drawio` 与 JSON 是可编辑、可重复生成的源文件。
 

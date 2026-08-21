@@ -1,0 +1,19 @@
+{
+  "title": "子 Agent 的 task 委派与协作",
+  "participants": [
+    {"id": "main", "label": "主 Agent", "actor": true},
+    {"id": "task", "label": "task 工具"},
+    {"id": "general", "label": "general-purpose 子图"},
+    {"id": "browser", "label": "browser 子图"}
+  ],
+  "messages": [
+    {"from": "main", "to": "task", "label": "task(general-purpose, 源码调查)"},
+    {"from": "task", "to": "general", "label": "ainvoke([HumanMessage(description)])"},
+    {"from": "main", "to": "task", "label": "task(browser, 页面验证)；独立时可同轮发起", "async": true},
+    {"from": "task", "to": "browser", "label": "ainvoke([HumanMessage(description)])", "async": true},
+    {"from": "browser", "to": "task", "label": "最终报告", "return": true},
+    {"from": "general", "to": "task", "label": "最终报告", "return": true},
+    {"from": "task", "to": "main", "label": "ToolMessage(报告)；主 Agent 汇总", "return": true},
+    {"note": "general-purpose 与 browser 没有直接调用边；同一 sandbox 的写入和浏览器会话不应并发竞争", "over": "general"}
+  ]
+}
