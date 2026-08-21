@@ -1,0 +1,20 @@
+{
+  "title": "Open SWE 中间件：从 Run 准备到 Provider 保护",
+  "participants": [
+    {"id": "runtime", "label": "LangGraph Runtime", "actor": true},
+    {"id": "middleware", "label": "AgentMiddleware 链"},
+    {"id": "tool", "label": "Agent / Tool Loop"},
+    {"id": "provider", "label": "Model Provider"}
+  ],
+  "messages": [
+    {"from": "runtime", "to": "middleware", "label": "before_agent：准备 sandbox、prompt、checkpoint"},
+    {"from": "middleware", "to": "tool", "label": "before_model：队列注入、plan mode 工具过滤、token 刷新"},
+    {"from": "middleware", "to": "provider", "label": "wrap_model_call：fallback、消息清洗、最内层 timeout"},
+    {"from": "provider", "to": "tool", "label": "模型返回 tool call", "return": true},
+    {"from": "tool", "to": "middleware", "label": "awrap_tool_call：参数清洗、PR guard、task retry、错误转换"},
+    {"from": "middleware", "to": "tool", "label": "ToolMessage / Command：结果回到状态"},
+    {"from": "tool", "to": "middleware", "label": "下一轮 before_model；循环直到结束"},
+    {"from": "middleware", "to": "runtime", "label": "after_agent：步数耗尽或最终结果通知", "return": true},
+    {"note": "学习顺序：先钩子，再 Run 准备；然后工具治理，最后模型可靠性", "over": "middleware"}
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "title": "用户 Skill：保存、发现与按需读取",
+  "participants": [
+    {"id": "ui", "label": "Dashboard / Agent 工具", "actor": true},
+    {"id": "store", "label": "LangGraph Store"},
+    {"id": "factory", "label": "get_agent / CompositeBackend"},
+    {"id": "agent", "label": "Deep Agent"}
+  ],
+  "messages": [
+    {"from": "ui", "to": "store", "label": "put_item([user_skills, login], /name/SKILL.md, record)"},
+    {"from": "ui", "to": "factory", "label": "新 Run：携带 profile_login"},
+    {"from": "factory", "to": "agent", "label": "skills=[/skills/]；backend=Composite(default=sandbox, /skills/=read-only Store)"},
+    {"from": "agent", "to": "store", "label": "before_agent：列 /skills/，下载各 SKILL.md，解析元数据"},
+    {"from": "store", "to": "agent", "label": "name / description / virtual path", "return": true},
+    {"note": "初始 prompt 只有 Skill 索引，不含完整 instructions", "over": "agent"},
+    {"from": "agent", "to": "store", "label": "需要时 read_file(/skills/name/SKILL.md)；Composite 路由到 Store"},
+    {"from": "store", "to": "agent", "label": "完整 SKILL.md", "return": true},
+    {"note": "write_file(/skills/...) 被 ReadOnlyBackend 拒绝；execute 永远走 sandbox default", "over": "factory"}
+  ]
+}

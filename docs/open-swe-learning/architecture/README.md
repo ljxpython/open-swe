@@ -73,6 +73,11 @@ Open SWE 不是“UI 直接调用一个 Agent 函数”。它把一次任务拆�
 15. `premium/15-review-chat-sequence.drawio`：PR Chat 的命令控制面、PR 虚拟文件注入、只读 GitHub 查询和 SSE 观察面。
 16. `premium/16-main-agent-loop.drawio`：从主 Agent 已取得任务开始，查看模型判断、工具执行、`ToolMessage` 回流、子 Agent 汇总和结束条件；不包含服务入口或存储链路。
 17. `premium/17-deepagents-prompts-and-delegation.drawio`：主模型何时直接调用工具、何时通过 `task` 启动 general-purpose，以及子结论如何回到主模型；同时解释提示词边界。
+18. `premium/18-subagent-task-coordination.drawio`：`task` 如何按名称选择子图、主 Agent 如何扇出/扇入多个独立子任务，以及子 Agent 之间没有直接调用边的原因。
+19. `premium/19-multi-agent-orchestration-boundaries.drawio`：Deep Agents 的模型驱动委派与 LangGraph 的显式 router、fan-out、reducer、reviewer 和 retry 边界。
+20. `premium/20-user-skills-and-composite-backend.drawio`：用户 Skill 如何进入 LangGraph Store，在新 Run 中被 `SkillsMiddleware` 发现，并经由只读 `/skills/` 虚拟目录按需读取。
+21. `premium/21-middleware-learning-roadmap.drawio`：按 Run 准备、工具治理、模型可靠性三条线学习 middleware，并标出一次 Run 的循环边界。
+22. `premium/22-custom-middleware-lifecycle-basics.drawio`：从 `abefore_agent` 到 `aafter_agent` 展示自定义 middleware 的 state update 与 wrapper 返回值边界。
 
 ## 文件约定
 

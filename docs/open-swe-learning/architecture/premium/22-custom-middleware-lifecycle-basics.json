@@ -1,0 +1,21 @@
+{
+  "title": "自定义 Middleware：五个基础生命周期钩子",
+  "participants": [
+    {"id": "runtime", "label": "LangGraph Runtime", "actor": true},
+    {"id": "middleware", "label": "LifecycleAuditMiddleware"},
+    {"id": "agent", "label": "Agent / Tool Loop"},
+    {"id": "provider", "label": "Model Provider"}
+  ],
+  "messages": [
+    {"from": "runtime", "to": "middleware", "label": "abefore_agent(state, runtime)：初始化 lifecycle_events"},
+    {"from": "middleware", "to": "agent", "label": "state update"},
+    {"from": "agent", "to": "middleware", "label": "abefore_model(state, runtime)：记录下一轮"},
+    {"from": "middleware", "to": "provider", "label": "awrap_model_call(request, handler)：记录耗时后 await handler"},
+    {"from": "provider", "to": "agent", "label": "ModelResponse / tool call", "return": true},
+    {"from": "agent", "to": "middleware", "label": "awrap_tool_call(request, handler)：允许、修改或短路工具"},
+    {"from": "middleware", "to": "agent", "label": "ToolMessage / Command", "return": true},
+    {"from": "agent", "to": "middleware", "label": "模型无 tool call 后：aafter_agent(state, runtime)"},
+    {"from": "middleware", "to": "runtime", "label": "最终 state update / 清理", "return": true},
+    {"note": "before/after 返回 state update；wrap 钩子返回模型或工具结果", "over": "middleware"}
+  ]
+}
