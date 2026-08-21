@@ -1,0 +1,25 @@
+{
+  "title": "目标：一次可恢复的 Agent 运行",
+  "participants": [
+    {"id": "client", "label": "平台客户端", "actor": true},
+    {"id": "api", "label": "Platform API"},
+    {"id": "runtime", "label": "Runtime Service"},
+    {"id": "life", "label": "生命周期中间件"},
+    {"id": "model", "label": "模型供应商"},
+    {"id": "tool", "label": "受控工具 / MCP"},
+    {"id": "state", "label": "Thread / Event Store"}
+  ],
+  "messages": [
+    {"from": "client", "to": "api", "label": "创建或继续 thread 的 run"},
+    {"from": "api", "to": "runtime", "label": "可信身份 + project scope + options"},
+    {"from": "runtime", "to": "state", "label": "创建 Durable Run / 同步 checkpoint"},
+    {"from": "runtime", "to": "life", "label": "prepare：解析策略、配额、能力"},
+    {"from": "life", "to": "model", "label": "模型调用（超时 / fallback）"},
+    {"from": "model", "to": "life", "label": "tool call 或最终消息", "return": true},
+    {"from": "life", "to": "tool", "label": "白名单校验后执行工具"},
+    {"from": "tool", "to": "life", "label": "结果或标准化错误", "return": true},
+    {"from": "life", "to": "state", "label": "checkpoint + 追加事件", "async": true},
+    {"from": "state", "to": "client", "label": "可重放 SSE / 最终状态", "async": true},
+    {"note": "模型或工具失败时：记录原因，按策略重试、降级或明确结束；不能静默卡死。", "over": "life"}
+  ]
+}

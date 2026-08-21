@@ -1,0 +1,62 @@
+{
+  "title": "Open SWE Agent Engineering - System Context",
+  "levels": [
+    {
+      "name": "System Context",
+      "elements": [
+        {"id": "engineer", "type": "person", "label": "工程师", "desc": "在 Dashboard、Slack、Linear 或 GitHub 提交开发请求"},
+        {"id": "openswe", "type": "system", "label": "Open SWE", "tech": "FastAPI + LangGraph + Deep Agents", "desc": "按线程运行受控的软件工程 Agent", "children": "Runtime Containers"},
+        {"id": "github", "type": "external", "label": "GitHub", "tech": "OAuth / App / Webhook", "desc": "代码仓库、Pull Request 与事件入口"},
+        {"id": "chatops", "type": "external", "label": "Slack / Linear", "tech": "Webhook", "desc": "协作消息与任务入口"},
+        {"id": "langgraph", "type": "external", "label": "LangGraph Runtime", "tech": "Threads / Runs / Checkpoints", "desc": "持久化执行、事件流与恢复"},
+        {"id": "models", "type": "external", "label": "模型提供商", "tech": "LLM API", "desc": "负责理解、规划和选择工具"},
+        {"id": "sandbox", "type": "external", "label": "隔离 Sandbox", "tech": "LangSmith / Modal / E2B ...", "desc": "执行 git、测试和文件修改"}
+      ],
+      "relations": [
+        {"from": "engineer", "to": "openswe", "label": "发起任务 / 查看进度"},
+        {"from": "github", "to": "openswe", "label": "Webhook"},
+        {"from": "chatops", "to": "openswe", "label": "Webhook"},
+        {"from": "openswe", "to": "langgraph", "label": "创建 Thread / Run"},
+        {"from": "openswe", "to": "models", "label": "模型调用"},
+        {"from": "openswe", "to": "sandbox", "label": "隔离执行"},
+        {"from": "sandbox", "to": "github", "label": "受控 git / gh"}
+      ]
+    },
+    {
+      "name": "Runtime Containers",
+      "elements": [
+        {"id": "dashboard", "type": "container", "label": "Dashboard / UI", "tech": "React", "desc": "创建线程、展示 SSE 事件、审核计划"},
+        {"id": "fastapi", "type": "container", "label": "FastAPI 接入层", "tech": "FastAPI", "desc": "OAuth、Dashboard API、Webhook 签名校验"},
+        {"id": "runtime", "type": "container", "label": "LangGraph Runtime", "tech": "LangGraph API", "desc": "运行多张图、保存线程和检查点", "children": "Agent Components"},
+        {"id": "postgres", "type": "database", "label": "持久化数据库", "tech": "PostgreSQL", "desc": "生产 Runtime 的线程和检查点"},
+        {"id": "redis", "type": "database", "label": "任务协调存储", "tech": "Redis", "desc": "生产 Runtime 的 worker / 队列能力"},
+        {"id": "worker_sandbox", "type": "container", "label": "每线程 Sandbox", "tech": "Sandbox provider", "desc": "代码工作区与命令执行"}
+      ],
+      "relations": [
+        {"from": "dashboard", "to": "fastapi", "label": "HTTPS / SSE"},
+        {"from": "fastapi", "to": "runtime", "label": "commands / stream proxy"},
+        {"from": "runtime", "to": "postgres", "label": "thread / checkpoint"},
+        {"from": "runtime", "to": "redis", "label": "workers"},
+        {"from": "runtime", "to": "worker_sandbox", "label": "Agent backend"}
+      ]
+    },
+    {
+      "name": "Agent Components",
+      "elements": [
+        {"id": "agent_factory", "type": "component", "label": "get_agent", "tech": "agent/server.py", "desc": "按线程装配模型、工具、Backend 与中间件"},
+        {"id": "prepare", "type": "component", "label": "PrepareAgentRunMiddleware", "tech": "middleware", "desc": "解析身份、准备 Sandbox、生成动态提示词"},
+        {"id": "deepagent", "type": "component", "label": "create_deep_agent", "tech": "deepagents", "desc": "提供文件、Shell、子 Agent 与工具循环"},
+        {"id": "guardrails", "type": "component", "label": "Guardrail Middleware", "tech": "LangChain middleware", "desc": "限步、超时、错误、计划模式、PR 守卫"},
+        {"id": "tools", "type": "component", "label": "Curated Tools", "tech": "agent/tools", "desc": "平台能力与明确的外部副作用"},
+        {"id": "specialists", "type": "component", "label": "专用图", "tech": "reviewer / analyzer / chat", "desc": "将审查、学习、问答同主开发隔离"}
+      ],
+      "relations": [
+        {"from": "agent_factory", "to": "prepare", "label": "run preparation"},
+        {"from": "agent_factory", "to": "deepagent", "label": "build graph"},
+        {"from": "agent_factory", "to": "guardrails", "label": "ordered stack"},
+        {"from": "deepagent", "to": "tools", "label": "tool calls"},
+        {"from": "agent_factory", "to": "specialists", "label": "独立职责"}
+      ]
+    }
+  ]
+}
