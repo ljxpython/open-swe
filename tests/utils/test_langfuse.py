@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from types import SimpleNamespace
 from typing import Any
 
@@ -10,7 +8,7 @@ class _Graph:
     def __init__(self) -> None:
         self.config: dict[str, Any] | None = None
 
-    def with_config(self, config: dict[str, Any]) -> _Graph:
+    def with_config(self, config: dict[str, Any]) -> "_Graph":
         self.config = config
         return self
 
