@@ -159,6 +159,23 @@ claim_status
 
 不能简单“读完就删除”，否则 Worker 在模型调用前崩溃会导致消息丢失。
 
+### 7.1 入站上下文在接收时固化，写操作前再实时复核
+
+外部消息到达时，先把可审计的来源上下文和消息一起保存：
+
+```text
+source_event_id
+source
+actor_id
+resource_ref
+received_at
+authorization_snapshot
+```
+
+同一个 `source_event_id` 必须去重；同一发送者在一个 Run 中的上下文也应合并，而不是每次模型调用都重复改写历史消息。这样 Webhook 重试、多入口转发和运行中补充消息都不会让模型混淆“这句话是谁、针对什么资源说的”。
+
+`authorization_snapshot` 只用于解释消息进入系统时为什么被接受，不能替代当前授权。任何写操作、自动修复或外部通知执行前，仍要根据最新权限、资源状态和审批状态重新校验。
+
 ## 8. Stale Run Watchdog
 
 Open SWE 的 `reconcile_stale_runs()` 会扫描 busy thread 上长期 pending 的 Run 并取消：
@@ -214,4 +231,3 @@ pending Run 超时 -> Watchdog 释放 thread
 - 不要把所有异常都转换成成功的 AIMessage。
 - 不要用日志文本代替稳定错误码。
 - 不要先做复杂分布式队列，先把单 Thread 的 claim/ack 语义测通。
-
