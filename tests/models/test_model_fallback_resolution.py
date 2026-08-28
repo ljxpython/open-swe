@@ -115,9 +115,9 @@ def test_models_with_profile_context_windows_enriches_copies() -> None:
     enriched = models_with_profile_context_windows(models)
     assert all("context_window" not in model for model in models)
     assert {model["id"]: model.get("context_window") for model in enriched} == {
-        "openai:gpt-5.6-sol": 1_050_000,
-        "openai:gpt-5.6-terra": 1_050_000,
-        "openai:gpt-5.6-luna": 1_050_000,
+        "openai:gpt-5.6-sol": 272_000,
+        "openai:gpt-5.6-terra": 272_000,
+        "openai:gpt-5.6-luna": 272_000,
         "openai:DeepSeek-V4-Flash": None,
         SUPPORTED_KIMI: 1_048_576,
     }
