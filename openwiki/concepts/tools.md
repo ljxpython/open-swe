@@ -1,229 +1,153 @@
 ---
-type: concept
-title: Agent Tools (Curated Toolset)
-description: Reference for Open SWE's curated tool library — where tools live, how they are imported, which tools each graph (agent, reviewer, analyzer, PR chat) exposes, and the agent/UI parity principle for adding new tools.
-tags: [tools, agent, reviewer, analyzer, deepagents, curation, plan-mode, authorization]
+type: tool catalog and authorization model
+title: Tool Catalog and Authorization
+description: How Open SWE exports curated tools, wires graph-specific and deferred tool surfaces, and enforces authorization and plan-mode controls. Use this page when safely adding or changing an agent capability.
+tags: [tools, agent, authorization, integrations, plan-mode, automation, reviewer]
 verified:
   - by: openwiki/0.4.2
-    at: 2026-08-27T06:27:22.313Z
+    at: 2026-09-08T08:15:30.533Z
 sources:
   - id: openwiki-source-63ebc853556c1b852ed80aff
     resource: repo://agent/analyzer.py
   - id: openwiki-source-921ec88ab63280d28b3dddb5
     resource: repo://agent/chat.py
+  - id: openwiki-source-9103280889fa6c4d9c5bb0df
+    resource: repo://agent/middleware/dynamic_tools.py
+  - id: openwiki-source-f26d060fb4408e89b50964a5
+    resource: repo://agent/middleware/plan_mode.py
   - id: openwiki-source-276ab38291eb5741b4c2141c
     resource: repo://agent/reviewer.py
   - id: openwiki-source-856ade03ef31ac38e1347f7c
     resource: repo://agent/server.py
+  - id: openwiki-source-e4901f6a09c372487ff11987
+    resource: repo://agent/tool_loaders/corridor_mcp.py
+  - id: openwiki-source-6de9e7b7779ea6aada343f2a
+    resource: repo://agent/tool_loaders/langsmith.py
+  - id: openwiki-source-2cd7e2018ae35c5972204803
+    resource: repo://agent/tool_loaders/notion_mcp.py
   - id: openwiki-source-a46a7cd7d143369055b05580
     resource: repo://agent/tools/__init__.py
-  - id: openwiki-source-d9bf67d6a09bd54eb3e306cf
-    resource: repo://agent/tools/background_execute.py
-  - id: openwiki-source-b5e769b43720e69b4e5eab75
-    resource: repo://agent/tools/environments.py
-  - id: openwiki-source-69330a855dafd7cace0820b0
-    resource: repo://agent/tools/fetch_review_diff.py
-  - id: openwiki-source-400c7123b7a35e5547f18d86
-    resource: repo://agent/tools/http_request.py
-  - id: openwiki-source-ba666a428b107356ed2aa395
-    resource: repo://agent/tools/manage_code_channel.py
-  - id: openwiki-source-2381c11d698eab667b973058
-    resource: repo://agent/tools/read_repo_file.py
-  - id: openwiki-source-9a9aaf4b265831fa9c7e3bd2
-    resource: repo://agent/tools/schedule_thread_wakeup.py
-  - id: openwiki-source-c631f720f8d212e6d3b82c53
-    resource: repo://agent/tools/search_repo_code.py
-  - id: openwiki-source-f04e398bd4e627fb9faff701
-    resource: repo://agent/tools/threads.py
-  - id: openwiki-source-8037e2358a2c4f9b2c722a11
-    resource: repo://AGENTS.md
-  - id: openwiki-source-23775c3de52f3ab95a13cb8b
-    resource: repo://README.md
-  - id: openwiki-source-3b6e8359d52d6e7ed5a50ef0
-    resource: repo://tests/tools/test_background_execute.py
-  - id: openwiki-source-66160b6a3ab0caa3aa64bf3e
-    resource: repo://tests/tools/test_http_security.py
-  - id: openwiki-source-7416596e0d9fc9b802355ff6
-    resource: repo://tests/tools/test_schedule_thread_wakeup.py
-  - id: openwiki-source-432efb2a605cb424bc404a25
-    resource: repo://tests/tools/test_threads.py
-generated: { by: "openwiki/0.4.2", at: "2026-08-27T06:27:22.313Z" }
+  - id: openwiki-source-9bef6ead94fcf55bf6db8787
+    resource: repo://agent/tools/admin_gate.py
+  - id: openwiki-source-74fafd9666607114e1ad0431
+    resource: repo://agent/tools/automations.py
+  - id: openwiki-source-dcf576fc340e5f1a2bc3f5f4
+    resource: repo://agent/tools/read_user_settings.py
+  - id: openwiki-source-fef236c0a2029fbda76955d6
+    resource: repo://tests/agent/test_plan_mode.py
+generated: { by: "openwiki/0.4.2", at: "2026-09-08T08:15:30.533Z" }
 ---
 
-# Agent Tools (Curated Toolset)
+# Tool Catalog and Authorization
 
-Open SWE deliberately keeps a **small, curated toolset** rather than accumulating
-tools. Stripe's insight that "tool curation matters more than tool quantity" is a
-stated product principle: GitHub work happens through `gh` in the sandbox, content
-search uses `rg` through `execute`, and only capabilities that genuinely need a
-first-class tool get one.
+Open SWE does not treat the tools package as a universal capability grant. A tool must be exported, deliberately wired into a particular graph, and—where appropriate—protected again at its own boundary. This separation keeps credentials, administrative actions, and graph-specific operations out of tool surfaces that do not need them.
 
-Every tool lives in `agent/tools/` and is exposed through `agent/tools/__init__.py`.
-The graph factories (`get_agent`, `get_reviewer_agent`, `get_analyzer`, and the PR
-chat agent) each import the subset of tools they wire in, alongside the built-in
-tools that `deepagents.create_deep_agent` contributes.
+## Catalog versus executable surface
 
-## Where tools live and how they are imported
+`agent.tools` is the curated export facade. `_TOOL_MODULES` maps public names to their implementation modules; access lazily imports and caches the export. Its module subclass deliberately prefers a public export over an identically named submodule that `importlib` placed on the package. Several names can share an implementation, such as the two background-task aliases and the automation operations.
 
-All tool modules sit flat under `agent/tools/`, and `agent/tools/__init__.py`
-re-exports them. The package uses **lazy imports**: `_TOOL_MODULES` maps each
-exported name to its submodule, and a custom `_LazyToolsModule` / `__getattr__`
-loads the module on first attribute access. This keeps import cost off the hot
-path — importing `agent.tools` does not eagerly import every tool's dependencies.
-A single symbol can be re-exported from a shared module (for example both
-`background_execute` and `background_task` come from `.background_execute`, and the
-four `environments` tools all live in `.environments`).
+The facade includes local curated modules as well as selected GitHub, Linear, and Slack tools. Exporting a name only makes it importable: each graph factory supplies its own list to `create_deep_agent`.
 
-## Toolsets per graph
-
-The tools a run sees depend on which graph is running and on run configuration.
-The important distinction is between statically wired tools, built-in deepagents
-tools, and the several toolsets that differ by graph.
+Deep Agents separately supplies filesystem and delegation tools: `read_file`, `write_file`, `edit_file`, `delete`, `ls`, `glob`, `grep`, `execute`, and `task`. `DEEP_AGENT_TOOL_NAMES` reserves these names, preventing static or dynamic integrations from colliding with them. The main graph hides `grep`; stop-summary mode additionally hides the mutating filesystem, shell, and delegation built-ins.
 
 ```mermaid
 flowchart TD
-    Tools["agent/tools/ (flat modules, lazy __init__.py)"]
-    Deep["create_deep_agent built-ins: read_file write_file edit_file delete ls glob grep execute task"]
-    Agent["get_agent main coding agent"]
-    Reviewer["get_reviewer_agent read-only PR reviewer"]
-    Analyzer["get_analyzer review-style analyzer"]
-    Chat["PR chat agent (no sandbox)"]
+    Catalog["agent.tools lazy catalog"]
+    Main["Main coding graph"]
+    Reviewer["Reviewer graph"]
+    Analyzer["Analyzer graph"]
+    Chat["Read-only PR chat graph"]
+    Builtins["Deep Agents built-ins"]
+    Deferred["Deferred integration groups"]
 
-    Tools --> Agent
-    Tools --> Reviewer
-    Tools --> Analyzer
-    Tools --> Chat
-    Deep --> Agent
-    Deep --> Reviewer
-    Deep --> Chat
+    Catalog --> Main
+    Catalog --> Reviewer
+    Catalog --> Analyzer
+    Catalog --> Chat
+    Builtins --> Main
+    Builtins --> Reviewer
+    Builtins --> Analyzer
+    Builtins --> Chat
+    Deferred --> Main
 ```
 
-Curated tools flow from `agent/tools/` into each graph, while deepagents contributes built-in filesystem, shell, and subagent tools.
+This diagram distinguishes the import catalog from the graph-specific execution surfaces; deferred integrations are attached only to eligible main-agent runs.
 
-### Built-in deepagents tools (do not duplicate)
+## Main coding agent assembly
 
-`create_deep_agent` itself adds the file, shell, and subagent tools:
-`read_file`, `write_file`, `edit_file`, `delete`, `ls`, `glob`, `grep`,
-`execute`, and `task` (subagent spawning). These names are tracked in
-`server.py:DEEP_AGENT_TOOL_NAMES` and must not be re-implemented as curated tools.
-The default agent excludes `grep` (`DEEP_AGENT_EXCLUDED_TOOLS`), and the "stop
-summary" mode strips the mutating built-ins.
+`agent.server:get_agent` constructs the normal `static_tools` list. It includes web access; plan lifecycle; background execution; user instructions and skills; Linear; dashboard thread, notification, and baby-sit operations; PR creation and review request; sandbox recovery; scheduling; safe user-settings lookup; platform-issue reporting; and Slack tools. Signed sandbox download/service helpers are included only when the run configuration enables them.
 
-### Main agent (`get_agent`)
+The final list depends on trusted run context:
 
-`agent/server.py:get_agent` assembles the main agent's tools from a `static_tools`
-list plus dynamically loaded groups. The static list spans web tools
-(`http_request`, `fetch_url`, `web_search`), planning (`approve_plan`,
-`enter_plan_mode`, `save_plan`), background execution (`background_execute`,
-`background_task`), Linear tools, thread tools (`list_threads`, `get_thread`,
-`manage_thread`), `manage_baby_sit`, `open_pull_request`, `request_pr_review`,
-`schedule_thread_wakeup`, Slack tools, and user-facing helpers such as
-`save_user_instructions`, `save_user_skill`/`delete_user_skill`,
-`read_user_settings`, `recreate_sandbox`, and `report_platform_issue`.
+- An `admin_thread` receives `ADMIN_TOOLS`: sandbox reset, automation management, environment management, and organization-skill mutations. The factory accepts the flag only after checking the triggering identity against the configured administrators, so metadata cannot transfer admin capability to a later participant.
+- A desktop `local_run` receives only `http_request`, `fetch_url`, and `web_search`. A `stop_summary` run initially receives only Slack thread reading and reply. In both cases, integration groups are not collected.
+- Slack operations are removed unless trusted Slack context enables them. This filtering occurs after the mode-specific list is chosen.
+- The general-purpose subagent gets the applicable static list except `background_execute` and `background_task`; separately compiled subagent graphs do not inherit parent middleware. Dynamic integration middleware is explicitly passed to it.
 
-The list is not fixed. Admin threads gain `ADMIN_TOOLS` (`sandbox_reset`,
-environment management, organization-skill management); sandbox file-download tools
-(`output_iframe`, `create_sandbox_file_download_url`) are added only when enabled;
-Slack tools are dropped when Slack is not enabled for the run; `local_run` collapses
-to just web tools, and `stop_summary_mode` collapses to Slack read/reply only.
-Optional integration groups (observability, Currents, Notion, Corridor, browser
-tools) are loaded through `DynamicToolMiddleware` and gated by authorization.
+## Deferred integration tools
 
-### Reviewer (`get_reviewer_agent`)
+Eligible normal runs construct candidate groups for Observability, Currents, Notion, and browser tools; a configured Corridor group advertises its fixed allowlist and postpones its MCP connection. `DynamicToolMiddleware` presents one loader, `load_integration_tools`, with the catalog of group-qualified tool names rather than placing all operational schemas on the first model call.
 
-`agent/reviewer.py:get_reviewer_agent` wires a **read-only** toolset with no
-commit/push/PR-opening tools: `fetch_review_diff`, `add_finding`, `update_finding`,
-`list_findings`, `publish_review`, `resolve_finding_thread`,
-`reply_to_finding_thread`, plus the shared web tools `web_search`, `fetch_url`, and
-`http_request`. The reviewer publishes exactly one review per PR via `publish_review`.
+```mermaid
+sequenceDiagram
+    participant Model
+    participant Middleware as Dynamic tool middleware
+    participant Loader as Integration loader
+    participant Service as Integration or MCP service
 
-### Analyzer (`get_analyzer`)
+    Model->>Middleware: load_integration_tools with names
+    Middleware->>Loader: build requested groups
+    Loader->>Service: obtain credentials or MCP tools
+    Service-->>Loader: resolved tools or failure
+    Loader-->>Middleware: cached group result
+    Middleware-->>Model: schemas available next turn or error
+    Model->>Middleware: call loaded tool
+    Middleware-->>Model: dispatch resolved tool
+```
 
-`agent/analyzer.py:get_analyzer` runs a minimal graph with just two tools:
-`save_review_style_prompt` (the `save_review_style` module's export) to emit the
-per-repo review-style prompt, and `read_finding_outcomes` used in continual mode to
-refine that prompt from the reviewer's own historical finding outcomes.
+This is the deferred loading path: a successful loader call updates run state, so the requested schema becomes available on the next model turn.
 
-### PR chat agent
+Names must be unique across groups and must not collide with the loader, built-ins, or static tools. The middleware resets `loaded_integration_tools` at the start of each run. It uses one lock and one cached resolution per group; loading failures become an empty group and a tool error instructing the model to continue. Direct integration calls before loading receive the same kind of recoverable error.
 
-`agent/chat.py` builds a separate, sandbox-less "chat with this PR" agent for the
-review UI. It uses GitHub-API-backed read tools (`read_repo_file`,
-`search_repo_code`), `list_review_findings`, and the web tools `web_search` /
-`fetch_url`, operating over PR context seeded as virtual `/pr/` files.
+Integration loading is also a credential boundary. Corridor accepts only its configured HTTPS endpoint and allowlisted tool names, puts its bearer token on the server-side MCP connection, and degrades to no tools when configuration or the service fails. Notion schemas require an `on_behalf_of` thread participant; each invocation resolves that participant and refreshes that participant's token rather than retaining one in the sandbox. LangSmith tools similarly resolve a participant credential at call time, can use team credentials only where allowed, and are read-only. Observability availability is selected only for an explicitly authorized/admin triggering identity.
 
-## Tool groups by domain
+## Specialist surfaces
 
-- **Sandbox / repo.** `background_execute` / `background_task` run non-blocking
-  commands in the thread sandbox; `read_repo_file` and `search_repo_code` read
-  repository source over the GitHub contents/code-search API for the sandbox-less
-  chat agent; `environments` provides admin environment management
-  (`list_environments`, `save_environment`, `capture_environment_snapshot`,
-  `delete_environment`); `sandbox_reset` and `recreate_sandbox` manage sandbox state.
-- **Planning.** `enter_plan_mode`, `save_plan`, and `approve_plan` drive the
-  plan/approve lifecycle.
-- **GitHub / PR.** `open_pull_request` opens PRs, `request_pr_review` requests a
-  reviewer run, and `fetch_review_diff` materializes the current review diff into
-  the reviewer's sandbox.
-- **Linear.** `linear_comment`, `linear_create_issue`, `linear_delete_issue`,
-  `linear_get_issue`, `linear_get_issue_comments`, `linear_list_teams`,
-  `linear_search_issues`, `linear_update_issue`.
-- **Slack.** `slack_add_reaction`, `slack_read_thread_messages`,
-  `slack_start_new_thread`, `slack_thread_reply`, `slack_attach_html`,
-  `slack_move_thread`, and `manage_code_channel` (the channel-per-task session).
-- **Findings / review.** `add_finding`, `update_finding`, `list_findings`,
-  `list_review_findings`, `publish_review`, `resolve_finding_thread`, and
-  `reply_to_finding_thread`.
-- **Scheduling / baby-sit.** `schedule_thread_wakeup` schedules a future wake of the
-  thread, and `manage_baby_sit` controls opt-in PR CI monitoring.
-- **Web.** `http_request`, `fetch_url`, and `web_search` reach the public network.
-  These process attacker-influenced content and are treated as a residual-risk class.
+| Graph | Curated tools and intent |
+| --- | --- |
+| Main | Context-dependent static tools, eligible dynamic groups, and applicable Deep Agents built-ins. |
+| Reviewer | `fetch_review_diff`; finding creation, update, listing, publication, resolution, and reply; plus `web_search`, `fetch_url`, and `http_request`. It does not receive `open_pull_request`. |
+| Analyzer | Only `save_review_style_prompt` and `read_finding_outcomes`, supporting repository review-style guidance. |
+| PR chat | `read_repo_file`, `search_repo_code`, `list_review_findings`, `web_search`, and `fetch_url`, with a read-only virtual-file surface. |
 
-## Parent-agent-only tools and plan-mode restrictions
+PR chat intentionally has no sandbox. It excludes shell and write built-ins, and its delegated subagent allowlists only `read_file`, `ls`, `glob`, and `grep`. The chat preparation middleware acquires a repository-scoped GitHub App installation token for the GitHub-backed read tools; PR overview, diff, and findings are supplied as virtual `/pr/` files by the review-chat API.
 
-`list_threads`, `get_thread`, and `manage_thread` (all in `agent/tools/threads.py`)
-are parent-agent-only thread-management tools. Rather than trusting thread metadata,
-each derives the acting user from trusted run configuration, rechecks
-allowed-organization membership, and preserves the dashboard's owner/participant/admin
-authorization checks — so an agent cannot act on a thread on behalf of an
-unauthorized user.
+## Tool-side authorization and safe responses
 
-Plan mode is enforced by `PlanModeMiddleware` with `PLAN_MODE_EXCLUDED_TOOLS`. It is
-installed unconditionally and is state-aware, so it also restricts tools after a
-mid-run `enter_plan_mode` call, not only when a run starts in plan mode. The excluded
-set removes mutating/side-effecting tools during planning — including `task`,
-`background_execute`/`background_task`, `http_request`, `open_pull_request`,
-`request_pr_review`, `manage_thread`, `manage_baby_sit`, `sandbox_reset`,
-`recreate_sandbox`, the mutating Linear tools, and environment mutations. The two
-read-only thread tools (`list_threads`, `get_thread`) remain available in plan mode;
-`manage_thread` does not.
+Graph wiring is a convenience and least-privilege measure, not the sole authorization control. `read_user_settings` takes no caller-provided user, thread, or source identifier. It derives verified participants from runtime configuration and returns mapped profile settings, instructions, connection status metadata, and an unresolved count—never connection tokens or credentials.
 
-## Agent/UI parity principle
+Automation operations repeat their authorization with `require_admin`, which checks the runtime identity. They wrap the dashboard schedule service and return structured `{ok: false, error: ...}` responses for authorization and service failures. Creation records the verified admin identity; update preserves omitted fields while rejecting simultaneous clear/set values for repository or Slack destination; test triggering is allowed for paused automations. The delete tool's contract requires user confirmation before permanent removal.
 
-Agent/UI parity is a product principle: anything a user can do in the dashboard UI
-should generally also be possible through an agent tool, subject to the same
-authorization and safety boundaries. When a UI capability is added, the
-corresponding curated tool should be added or extended unless there is a documented
-reason not to. This is why thread management, plan approval, environment management,
-and code-channel operations exist as tools that reuse the dashboard's authorization
-checks.
+This pattern is required for tools with sensitive side effects: validate trusted runtime identity and resource scope inside the tool, do not rely on model arguments or thread metadata, and turn anticipated operational failures into actionable tool results.
 
-## Adding a tool
+## Plan mode is stateful tool gating
 
-The process (see `AGENTS.md` conventions) is:
+Plan mode is a deliberately partial safety control, not simply a different prompt. `PlanModeMiddleware` is installed on every main graph and resets `plan_mode` to the run's configured initial value before execution; this prevents a persisted state from a previous run from silently affecting a later one. It recalculates the tool list on every model call, so an in-run `enter_plan_mode` command takes effect on the next turn.
 
-1. Add the tool module under `agent/tools/`.
-2. Export it from `agent/tools/__init__.py` (add to `_TOOL_MODULES`, `__all__`, and
-   the `TYPE_CHECKING` imports so the lazy loader and type checker both see it).
-3. Wire it into the `tools=[...]` list in `agent/server.py:get_agent` (or into
-   `agent/reviewer.py` for reviewer-only tools, or the relevant graph factory).
+When active, `PLAN_MODE_EXCLUDED_TOOLS` removes side-effecting external and administrative tools: delegation, background execution, browser interaction, mutable HTTP requests, baby-sit and thread mutation, PR actions, sandbox reset/recreation, user skills, mutable Linear actions, Slack moves/new threads, environment mutation, and automation mutation. Read-only thread lookup, plan approval, and `read_file`, `write_file`, `edit_file`, and `execute` remain available. The latter filesystem and shell capabilities are constrained by planning instructions to plan artifacts outside cloned repositories, rather than being technically prevented from changing files; `task` is excluded precisely because its independent subagent would bypass the parent gate.
 
-Because the app is async-only, implement the async variant; do not add sync/async
-dual implementations.
+## Safely extending a tool
+
+1. Implement an async tool in `agent/tools/`, map it in `_TOOL_MODULES`, and add its type-checking export.
+2. Wire it only into the graph(s) that need it. Decide whether desktop, stop-summary, Slack, admin-thread, or subagent filtering applies.
+3. Reserve the name against Deep Agents built-ins and static/dynamic integration names. For expensive or credentialed integrations, use an `IntegrationGroup` and make loading failure recoverable.
+4. Put authorization and scope checks at the tool boundary; derive actor and resource identity from trusted runtime context where possible. Keep secrets server-side and return redacted status/error data.
+5. Add focused behavior tests: catalog/graph composition and mode filtering, authorization denial, credential/scope handling, success and failure results, and plan-mode exclusion for each new mutation. Run only the relevant pytest target, as repository guidance requires.
 
 ## Related pages
 
-- `architecture/agent-graph` — how the graph factories, middleware stack, and
-  sandbox lifecycle assemble a run around these tools.
-- `concepts/auth` — GitHub/user-token and organization-membership checks the
-  thread and integration tools reuse.
-- `testing/overview` — the `tests/tools/` suite that exercises individual tools.
+- [Agent graph](../architecture/agent-graph.md) — graph factories and runtime assembly.
+- [Reviewer and analyzer](../architecture/reviewer-and-analyzer.md) — specialist graph responsibilities.
+- [Authorization and security](auth-and-security.md) — trust boundaries and credentials.
+- [Observability and MCP](../integrations/observability-and-mcp.md) — integration configuration.
+- [PR creation](../workflows/pr-creation.md) — PR workflow behavior.

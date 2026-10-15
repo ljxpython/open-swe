@@ -13,10 +13,9 @@ from deepagents.backends.protocol import (
 )
 from deepagents.backends.sandbox import BaseSandbox
 
-from agent.utils.sandbox_state import (
+from agent.sandboxes.state import (
     SANDBOX_BACKENDS,
     SandboxBackendProxy,
-    clear_sandbox_backend,
     get_or_create_sandbox_backend_proxy,
     get_sandbox_backend,
     get_sandbox_id_from_metadata,
@@ -25,6 +24,9 @@ from agent.utils.sandbox_state import (
 
 class _FakeSandboxBackend:
     id = "sandbox-1"
+
+    def execute(self, command: str, *, timeout: int | None = None) -> ExecuteResponse:
+        raise NotImplementedError
 
     async def aexecute(self, command: str, *, timeout: int | None = None) -> ExecuteResponse:
         return ExecuteResponse(output=f"{self.id}: {command}: {timeout}", exit_code=0)
@@ -115,13 +117,24 @@ async def test_sandbox_proxy_offload_falls_back_when_backend_lacks_it() -> None:
     result = await proxy.aexecute_with_offload("cmd", "/capture/path", max_inline_bytes=80_000)
 
     assert result.offloaded is False
-    assert result.response.output == "sandbox-1: cmd: None"
+    assert result.response.output == "sandbox-1: cmd: 300"
+
+
+@pytest.mark.asyncio
+async def test_sandbox_proxy_applies_default_execute_timeout() -> None:
+    proxy = SandboxBackendProxy(cast(SandboxBackendProtocol, _FakeSandboxBackend()), thread_id="t")
+
+    defaulted = await proxy.aexecute("rg pattern /workspace")
+    overridden = await proxy.aexecute("sleep 600", timeout=700)
+
+    assert defaulted.output == "sandbox-1: rg pattern /workspace: 300"
+    assert overridden.output == "sandbox-1: sleep 600: 700"
 
 
 @pytest.mark.asyncio
 async def test_sandbox_proxy_reconnects_from_metadata_once(monkeypatch: pytest.MonkeyPatch) -> None:
     thread_id = "thread-1"
-    clear_sandbox_backend(thread_id)
+    SANDBOX_BACKENDS.pop(thread_id, None)
     created: list[str] = []
 
     async def get_sandbox_id_from_metadata(requested_thread_id: str) -> str:
@@ -134,10 +147,10 @@ async def test_sandbox_proxy_reconnects_from_metadata_once(monkeypatch: pytest.M
         return _FakeSandboxBackend()
 
     monkeypatch.setattr(
-        "agent.utils.sandbox_state.get_sandbox_id_from_metadata",
+        "agent.sandboxes.state.get_sandbox_id_from_metadata",
         get_sandbox_id_from_metadata,
     )
-    monkeypatch.setattr("agent.utils.sandbox_state.create_sandbox", create_sandbox)
+    monkeypatch.setattr("agent.sandboxes.state.create_sandbox", create_sandbox)
 
     proxy = get_or_create_sandbox_backend_proxy(thread_id)
     assert SANDBOX_BACKENDS[thread_id] is proxy
@@ -146,14 +159,14 @@ async def test_sandbox_proxy_reconnects_from_metadata_once(monkeypatch: pytest.M
 
     assert created == ["sandbox-1"]
     assert [result.output for result in results] == [
-        "sandbox-1: cmd-0: None",
-        "sandbox-1: cmd-1: None",
-        "sandbox-1: cmd-2: None",
-        "sandbox-1: cmd-3: None",
-        "sandbox-1: cmd-4: None",
+        "sandbox-1: cmd-0: 300",
+        "sandbox-1: cmd-1: 300",
+        "sandbox-1: cmd-2: 300",
+        "sandbox-1: cmd-3: 300",
+        "sandbox-1: cmd-4: 300",
     ]
     assert proxy.current.id == "sandbox-1"
-    clear_sandbox_backend(thread_id)
+    SANDBOX_BACKENDS.pop(thread_id, None)
 
 
 @pytest.mark.asyncio
@@ -161,7 +174,7 @@ async def test_sandbox_proxy_uses_registered_reconnect_once(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     thread_id = "thread-1"
-    clear_sandbox_backend(thread_id)
+    SANDBOX_BACKENDS.pop(thread_id, None)
     reconnected: list[str] = []
 
     async def reconnect():
@@ -172,7 +185,7 @@ async def test_sandbox_proxy_uses_registered_reconnect_once(
     async def create_sandbox(sandbox_id: str):
         raise AssertionError(f"unexpected direct reconnect to {sandbox_id}")
 
-    monkeypatch.setattr("agent.utils.sandbox_state.create_sandbox", create_sandbox)
+    monkeypatch.setattr("agent.sandboxes.state.create_sandbox", create_sandbox)
 
     proxy = get_or_create_sandbox_backend_proxy(
         thread_id,
@@ -182,13 +195,13 @@ async def test_sandbox_proxy_uses_registered_reconnect_once(
 
     assert reconnected == [thread_id]
     assert [result.output for result in results] == [
-        "sandbox-1: cmd-0: None",
-        "sandbox-1: cmd-1: None",
-        "sandbox-1: cmd-2: None",
-        "sandbox-1: cmd-3: None",
-        "sandbox-1: cmd-4: None",
+        "sandbox-1: cmd-0: 300",
+        "sandbox-1: cmd-1: 300",
+        "sandbox-1: cmd-2: 300",
+        "sandbox-1: cmd-3: 300",
+        "sandbox-1: cmd-4: 300",
     ]
-    clear_sandbox_backend(thread_id)
+    SANDBOX_BACKENDS.pop(thread_id, None)
 
 
 @pytest.mark.asyncio
@@ -311,7 +324,7 @@ async def test_sandbox_proxy_delegates_delete_after_lazy_startup() -> None:
 @pytest.mark.asyncio
 async def test_get_sandbox_backend_awaits_registered_startup() -> None:
     thread_id = "thread-1"
-    clear_sandbox_backend(thread_id)
+    SANDBOX_BACKENDS.pop(thread_id, None)
     release = asyncio.Event()
 
     async def reconnect():
@@ -329,7 +342,7 @@ async def test_get_sandbox_backend_awaits_registered_startup() -> None:
 
     release.set()
     assert await waiter is proxy
-    clear_sandbox_backend(thread_id)
+    SANDBOX_BACKENDS.pop(thread_id, None)
 
 
 @pytest.mark.asyncio
@@ -341,11 +354,11 @@ async def test_sandbox_id_metadata_falls_back_to_live_thread(
     )
 
     monkeypatch.setattr(
-        "agent.utils.sandbox_state.get_config",
+        "agent.sandboxes.state.get_config",
         lambda: {"metadata": {}},
     )
     monkeypatch.setattr(
-        "agent.utils.sandbox_state.get_client",
+        "agent.sandboxes.state.get_client",
         lambda: SimpleNamespace(threads=threads),
     )
 

@@ -1,3 +1,3 @@
 # Files
 
-- [Testing Guide](overview.md) - How Open SWE's test suites are laid out, the pytest and Playwright conventions that govern them, and the commands to run the narrowest validation that proves a change.
+- [Focused Validation Strategy](overview.md) - Select the narrowest Python, frontend, or Playwright validation that owns an Open SWE change. This guide explains shared fakes, production-boundary coverage, and focused commands.

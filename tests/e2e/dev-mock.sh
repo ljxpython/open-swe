@@ -10,7 +10,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 API_PORT="${E2E_PORT:-2024}"
-UI_PORT="${UI_PORT:-3000}"
+UI_PORT="${UI_PORT:-4317}"
 API="http://127.0.0.1:${API_PORT}"
 UI="http://127.0.0.1:${UI_PORT}"
 

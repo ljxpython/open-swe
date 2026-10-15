@@ -146,9 +146,9 @@ REPO_SNAPSHOT_BASE_IMAGE="<your-docker-hub>/<name-of-your-image>"
 
 ```bash
 DASHBOARD_API_BASE_URL="http://localhost:2024"
-DASHBOARD_BASE_URL="http://localhost:3000"
+DASHBOARD_BASE_URL="http://localhost:4317"
 DASHBOARD_JWT_SECRET="<openssl-rand-hex-32>"
-DASHBOARD_ALLOWED_ORIGINS="http://localhost:3000"
+DASHBOARD_ALLOWED_ORIGINS="http://localhost:4317"
 CONFIGURED_ADMINS="alice,bob@my-org.com"
 LANGGRAPH_URL="http://localhost:2024"
 SANDBOX_TYPE="langsmith"
@@ -179,7 +179,7 @@ EOF
 pnpm run dev
 ```
 
-浏览器访问 `http://localhost:3000`。UI 请求会携带 Cookie，因此后端必须允许 `http://localhost:3000` 的凭据型 CORS。
+浏览器访问 `http://localhost:4317`。UI 请求会携带 Cookie，因此后端必须允许 `http://localhost:4317` 的凭据型 CORS。
 
 ## 9. 验证
 

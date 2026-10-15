@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # Files
 
-- [Open SWE Quickstart & Wiki Map](quickstart.md) - Entry point that orients a coding agent to Open SWE — a LangGraph + Deep Agents framework for internal coding agents — with the dev loop and a task-routing map to every wiki section.
+- [Open SWE Codebase Guide](quickstart.md) - Start here to set up Open SWE, choose the entrypoint and owner for a safe change, and run focused validation. Links route contributors to the detailed architecture, workflow, integration, operations, and testing guides.
 
 # Directories
 
